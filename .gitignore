@@ -1,5 +1,6 @@
 agenda_*.png
 agenda_reference_*.png
+agenda_print_*.pdf
 .chrome-capture-profile/
 assets/excel/*
 !assets/excel/sheet1_image_4_950x1295.png

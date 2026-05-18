@@ -57,6 +57,14 @@
       box-sizing: border-box;
     }
 
+    html,
+    body,
+    .print-page,
+    .print-page * {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
     body {
       margin: 0;
       color: var(--ink);
@@ -1101,11 +1109,11 @@
     }
 
     .ref-tag-red {
-      background: linear-gradient(135deg, #8e102b, #b20f3c);
+      background: #a80f3a;
     }
 
     .ref-tag-blue {
-      background: linear-gradient(135deg, #001f55, #082f75);
+      background: #082f75;
     }
 
     .ref-topic {
@@ -1241,7 +1249,7 @@
       align-items: center;
       gap: 7px;
       padding: 6px 10px;
-      background: linear-gradient(135deg, #001f55, #07336f);
+      background: #07336f;
       color: #fff;
       font-size: 12.5px;
       font-weight: 900;
@@ -1259,7 +1267,7 @@
 
     .ref-card:nth-child(2) .ref-card-title {
       color: #fff;
-      background: linear-gradient(135deg, #8e102b, #b20f3c);
+      background: #a80f3a;
     }
 
     .ref-card:nth-child(2) .ref-card-title .ref-section-icon {
@@ -1466,7 +1474,7 @@
       align-items: center;
       gap: 9px;
       color: #fff;
-      background: linear-gradient(135deg, var(--tm-maroon), #b10f3f);
+      background: #a80f3a;
       font-size: 16px;
       font-weight: 900;
       margin: 0;
@@ -1515,7 +1523,7 @@
     }
 
     .ref-agenda-table th {
-      background: linear-gradient(135deg, #002f5e, #003e68);
+      background: #003e68;
       color: #fff;
       padding: 5px 4px;
       text-align: center;
@@ -1538,7 +1546,7 @@
     }
 
     .ref-stage-cell {
-      background: linear-gradient(135deg, #fff9f4, #fdf0e3);
+      background: #fff3e8;
       color: var(--tm-maroon);
       font-weight: 900;
       padding: 0 5px;
@@ -1797,11 +1805,11 @@
     }
 
     .ref-bottom-card:nth-child(1) {
-      background: linear-gradient(135deg, #f8fbff, #edf6ff);
+      background: #f2f8ff;
     }
 
     .ref-bottom-card:nth-child(2) {
-      background: linear-gradient(135deg, #fbfff7, #eff8e8);
+      background: #f1faec;
     }
 
     .ref-bottom-card:nth-child(2) .ref-bottom-title {
@@ -1814,7 +1822,7 @@
     }
 
     .ref-bottom-card:nth-child(3) {
-      background: linear-gradient(135deg, #fffdf5, #fff4dd);
+      background: #fff6e4;
       border-color: #f1c47c;
     }
 
@@ -1945,6 +1953,14 @@
     }
 
     @media print {
+      *,
+      *::before,
+      *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
       html,
       body {
         background: #fff;
@@ -1990,6 +2006,64 @@
         transform-origin: top left !important;
         margin: 0 !important;
         break-after: auto;
+      }
+
+      .ref-page {
+        background: #fff !important;
+        color: #061b3d !important;
+        outline: 0 !important;
+      }
+
+      .ref-card-title {
+        background: #07336f !important;
+        color: #fff !important;
+      }
+
+      .ref-card:nth-child(2) .ref-card-title,
+      .ref-flow-title {
+        background: #a80f3a !important;
+        color: #fff !important;
+      }
+
+      .ref-agenda-table th {
+        background: #003e68 !important;
+        color: #fff !important;
+      }
+
+      .ref-stage-cell {
+        background: #fff3e8 !important;
+        color: var(--tm-maroon) !important;
+      }
+
+      .ref-stage-number {
+        background: var(--tm-maroon) !important;
+        color: #fff !important;
+      }
+
+      .ref-tag-red {
+        background: #a80f3a !important;
+        color: #fff !important;
+      }
+
+      .ref-tag-blue {
+        background: #082f75 !important;
+        color: #fff !important;
+      }
+
+      .ref-bottom-card:nth-child(1) {
+        background: #f2f8ff !important;
+      }
+
+      .ref-bottom-card:nth-child(2) {
+        background: #f1faec !important;
+      }
+
+      .ref-bottom-card:nth-child(3) {
+        background: #fff6e4 !important;
+      }
+
+      .ref-note {
+        background: #fff7e6 !important;
       }
 
       .preview-sheet .print-page,
