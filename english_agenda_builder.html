@@ -1,0 +1,3268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>English Agenda Builder</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      color-scheme: light;
+      --tm-maroon: #772432;
+      --tm-blue: #004165;
+      --tm-gray: #a9b2b1;
+      --tm-yellow: #f2df74;
+      --md-primary: var(--tm-maroon);
+      --md-on-primary: #ffffff;
+      --md-primary-container: #f8d8dd;
+      --md-on-primary-container: #2d070f;
+      --md-secondary: var(--tm-blue);
+      --md-on-secondary: #ffffff;
+      --md-secondary-container: #d6ecf8;
+      --md-on-secondary-container: #001f31;
+      --md-tertiary: #6b5d00;
+      --md-tertiary-container: var(--tm-yellow);
+      --md-on-tertiary-container: #211b00;
+      --md-surface: #fffbff;
+      --md-surface-container-low: #f9f7f5;
+      --md-surface-container: #f0f1ef;
+      --md-surface-container-high: #e7ebe9;
+      --md-outline: #747d7c;
+      --md-outline-variant: #c5ccca;
+      --md-on-surface: #1a1c1c;
+      --md-on-surface-variant: #444b4a;
+      --md-error: #b3261e;
+      --md-on-error: #ffffff;
+      --ink: var(--md-on-surface);
+      --muted: var(--md-on-surface-variant);
+      --subtle: var(--md-surface-container);
+      --panel: var(--md-surface);
+      --line: var(--md-outline-variant);
+      --maroon: var(--tm-maroon);
+      --maroon-dark: #5a1724;
+      --teal: var(--tm-blue);
+      --amber: #9c6400;
+      --blue: var(--tm-blue);
+      --green: #1d7d48;
+      --danger: var(--md-error);
+      --shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.12);
+      --shadow-strong: 0 12px 30px rgba(0, 65, 101, 0.18);
+      --radius: 8px;
+      --page-width: 210mm;
+      --page-height: 297mm;
+      font-family: "Gotham", "Montserrat", "Aptos", "Segoe UI", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(119, 36, 50, 0.08), transparent 32%),
+        linear-gradient(180deg, #fffbff 0%, #edf2f1 100%);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(360px, 440px) minmax(0, 1fr);
+      gap: 18px;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .control-panel {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 14px;
+      min-height: calc(100vh - 36px);
+    }
+
+    .app-header,
+    .editor-stack,
+    .preview-panel {
+      background: rgba(255, 251, 255, 0.96);
+      border: 1px solid rgba(197, 204, 202, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .app-header {
+      border-radius: var(--radius);
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .brand-mark {
+      width: 96px;
+      height: 58px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border: 1px solid var(--md-outline-variant);
+      box-shadow: inset 0 -3px 0 rgba(119, 36, 50, 0.16);
+      padding: 8px;
+    }
+
+    .brand-mark img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-family: "Gotham", "Aptos Display", "Segoe UI", Arial, sans-serif;
+      font-size: 23px;
+      line-height: 1.12;
+      letter-spacing: 0;
+      color: var(--tm-blue);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    strong {
+      font-weight: 850;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .save-status,
+    .agenda-count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-actions,
+    .action-row,
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1;
+      min-height: 36px;
+      transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: #c7e2f1;
+      box-shadow: var(--shadow);
+    }
+
+    .btn:focus-visible,
+    .input:focus-visible,
+    .textarea:focus-visible,
+    .select:focus-visible {
+      outline: 3px solid rgba(242, 223, 116, 0.85);
+      outline-offset: 2px;
+    }
+
+    .btn.primary {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+    }
+
+    .btn.primary:hover {
+      background: var(--maroon-dark);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--md-primary);
+      border: 1px solid var(--md-outline);
+    }
+
+    .btn.danger {
+      color: var(--md-on-error);
+      background: var(--md-error);
+    }
+
+    .btn.small {
+      padding: 7px 10px;
+      font-size: 12px;
+      min-height: 30px;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .editor-stack {
+      border-radius: var(--radius);
+      overflow: auto;
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    details.editor-section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--md-surface);
+      overflow: hidden;
+    }
+
+    details.editor-section[open] {
+      box-shadow: var(--shadow);
+    }
+
+    details.editor-section summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+      color: var(--ink);
+      background: var(--md-surface-container-low);
+    }
+
+    details.editor-section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.editor-section summary::after {
+      content: "+";
+      color: var(--maroon);
+      font-weight: 900;
+    }
+
+    details.editor-section[open] summary::after {
+      content: "-";
+    }
+
+    .section-body {
+      padding: 13px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .qr-upload-field {
+      grid-column: 1 / -1;
+      border: 1px solid var(--md-outline-variant);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      justify-items: start;
+    }
+
+    .qr-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qr-thumb-button {
+      display: grid;
+      place-items: center;
+      width: 70px;
+      height: 70px;
+      padding: 0;
+      border: 1px solid var(--md-outline-variant);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .qr-thumb-button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .qr-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    label {
+      color: var(--md-on-surface-variant);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .input,
+    .textarea,
+    .select {
+      width: 100%;
+      border: 1px solid var(--md-outline);
+      border-radius: 7px;
+      background: var(--md-surface);
+      color: var(--ink);
+      padding: 9px 10px;
+      outline: none;
+      min-width: 0;
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.45;
+    }
+
+    .input:focus,
+    .textarea:focus,
+    .select:focus {
+      border-color: var(--maroon);
+      box-shadow: 0 0 0 3px rgba(119, 36, 50, 0.14);
+    }
+
+    .agenda-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .agenda-list {
+      display: grid;
+      gap: 8px;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .agenda-card {
+      border: 1px solid var(--md-outline-variant);
+      border-radius: 8px;
+      background: var(--md-surface);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      cursor: grab;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease, transform 0.12s ease;
+    }
+
+    .agenda-card.section-card {
+      background: var(--md-primary-container);
+      border-color: rgba(119, 36, 50, 0.28);
+    }
+
+    .agenda-card.active {
+      border-color: var(--maroon);
+      box-shadow: 0 0 0 3px rgba(119, 36, 50, 0.14);
+    }
+
+    .agenda-card.dragging {
+      opacity: 0.46;
+      cursor: grabbing;
+    }
+
+    .agenda-card.drop-before {
+      box-shadow: inset 0 4px 0 var(--tm-maroon);
+    }
+
+    .agenda-card.drop-after {
+      box-shadow: inset 0 -4px 0 var(--tm-maroon);
+    }
+
+    .agenda-main {
+      display: grid;
+      grid-template-columns: 18px 58px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .drag-handle {
+      width: 18px;
+      min-height: 28px;
+      display: grid;
+      place-items: center;
+      color: var(--md-outline);
+      touch-action: none;
+    }
+
+    .drag-handle::before {
+      content: "";
+      width: 4px;
+      height: 22px;
+      background:
+        radial-gradient(circle, currentColor 1.6px, transparent 1.8px) 0 0 / 4px 7px;
+    }
+
+    .agenda-card:hover .drag-handle,
+    .agenda-card.active .drag-handle {
+      color: var(--tm-maroon);
+    }
+
+    .agenda-time {
+      color: var(--maroon);
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .agenda-title {
+      font-weight: 850;
+      line-height: 1.28;
+      min-width: 0;
+    }
+
+    .agenda-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 3px;
+    }
+
+    .agenda-detail {
+      color: var(--md-on-surface-variant);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .agenda-form {
+      border: 1px solid var(--line);
+      background: var(--md-surface-container-low);
+      border-radius: var(--radius);
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .preview-panel {
+      border-radius: var(--radius);
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      justify-items: center;
+      gap: 12px;
+    }
+
+    .preview-toolbar {
+      width: min(100%, var(--page-width));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 2px;
+    }
+
+    .preview-stage {
+      width: 100%;
+      min-width: 0;
+      display: grid;
+      justify-items: center;
+    }
+
+    .preview-sheet {
+      --preview-scale: 1;
+      position: relative;
+      width: var(--page-width);
+      height: var(--page-height);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .preview-sheet .print-page {
+      transform: scale(var(--preview-scale));
+      transform-origin: top left;
+    }
+
+    .print-page {
+      width: var(--page-width);
+      height: var(--page-height);
+      min-height: 0;
+      overflow: hidden;
+      background: var(--md-surface);
+      color: var(--md-on-surface);
+      box-shadow: var(--shadow-strong);
+      padding: 12mm 12mm 10mm;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: 4.5mm;
+    }
+
+    .page-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 146px;
+      gap: 18px;
+      align-items: start;
+      border-bottom: 4px solid var(--tm-blue);
+      padding-bottom: 5mm;
+    }
+
+    .club-kicker {
+      color: var(--maroon);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    .page-title {
+      font-family: "Gotham", "Aptos Display", "Segoe UI", Arial, sans-serif;
+      color: var(--tm-blue);
+      font-size: 27px;
+      line-height: 1.1;
+      font-weight: 900;
+      margin-top: 4px;
+      letter-spacing: 0;
+    }
+
+    .page-subtitle {
+      color: var(--md-on-surface-variant);
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.34;
+    }
+
+    .page-brand-panel {
+      display: grid;
+      gap: 8px;
+      align-self: stretch;
+    }
+
+    .page-logo {
+      border: 1px solid var(--md-outline-variant);
+      border-radius: 8px;
+      background: #fff;
+      padding: 7px;
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+    }
+
+    .page-logo img {
+      max-width: 100%;
+      max-height: 44px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .page-badge {
+      border: 2px solid var(--tm-maroon);
+      border-radius: 8px;
+      padding: 7px 9px;
+      text-align: center;
+      color: var(--maroon);
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      background: var(--md-primary-container);
+    }
+
+    .badge-number {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .badge-label {
+      font-size: 10.5px;
+      color: var(--md-on-surface-variant);
+      margin-top: 4px;
+    }
+
+    .info-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 8px;
+    }
+
+    .info-box,
+    .side-card,
+    .footer-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--md-surface);
+      overflow: hidden;
+    }
+
+    .info-box {
+      padding: 10px 12px;
+      display: grid;
+      gap: 3px;
+      min-height: 48px;
+      border-top: 4px solid var(--tm-blue);
+    }
+
+    .info-box.theme-box {
+      border-top-color: var(--tm-maroon);
+      background: linear-gradient(180deg, #fff7f8 0%, var(--md-surface) 100%);
+    }
+
+    .info-box.word-box {
+      border-top-color: var(--tm-yellow);
+      background: linear-gradient(180deg, #fffbea 0%, var(--md-surface) 100%);
+    }
+
+    .info-box.team-box {
+      border-top-color: var(--tm-blue);
+      background: linear-gradient(180deg, #eff8fc 0%, var(--md-surface) 100%);
+    }
+
+    .info-label {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 9px;
+      align-items: start;
+    }
+
+    .agenda-table {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .agenda-table table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 8.6px;
+    }
+
+    .agenda-table th {
+      background: var(--tm-blue);
+      color: var(--md-on-secondary);
+      padding: 4px 5px;
+      text-align: left;
+      font-size: 8.6px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .agenda-table td {
+      padding: 2.4px 4.5px;
+      border-top: 1px solid #e1e7e5;
+      vertical-align: top;
+      line-height: 1.22;
+      word-break: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .agenda-table tbody tr:not(.table-section):nth-child(odd) td {
+      background: #fbf8f8;
+    }
+
+    .agenda-table tbody tr:not(.table-section):nth-child(even) td {
+      background: #f6fafb;
+    }
+
+    .agenda-table .time-col {
+      width: 50px;
+      color: var(--maroon);
+      font-weight: 900;
+    }
+
+    .agenda-table .duration-col {
+      width: 50px;
+      text-align: center;
+      color: var(--md-on-surface-variant);
+      font-weight: 800;
+    }
+
+    .agenda-table .speaker-col {
+      width: 104px;
+      color: var(--md-on-surface-variant);
+      font-weight: 750;
+    }
+
+    .table-section td {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 9px;
+      padding: 4px 6px;
+    }
+
+    .program-title {
+      font-weight: 850;
+    }
+
+    .program-detail {
+      margin-top: 3px;
+      color: var(--md-on-surface-variant);
+      font-size: 8px;
+      line-height: 1.22;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-card h3,
+    .footer-card h3 {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      font-size: 11px;
+      padding: 6px 9px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .side-card:nth-child(1) h3,
+    .footer-card:nth-child(1) h3 {
+      background: var(--tm-blue);
+      color: #fff;
+    }
+
+    .side-card:nth-child(2) h3,
+    .footer-card:nth-child(2) h3 {
+      background: var(--tm-maroon);
+      color: #fff;
+    }
+
+    .side-card:nth-child(3) h3,
+    .footer-card:nth-child(3) h3 {
+      background: var(--tm-yellow);
+      color: #1f1b00;
+    }
+
+    .side-card:nth-child(4) h3 {
+      background: var(--tm-gray);
+      color: #102027;
+    }
+
+    .side-body,
+    .footer-body {
+      padding: 9px 10px;
+      font-size: 9.3px;
+      line-height: 1.3;
+      color: var(--md-on-surface-variant);
+      display: grid;
+      gap: 5px;
+    }
+
+    .officer-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px 7px;
+    }
+
+    .officer-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+      border-bottom: 1px dashed var(--md-outline-variant);
+      padding-bottom: 4px;
+    }
+
+    .officer-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .officer-role {
+      color: var(--md-on-surface-variant);
+      font-weight: 800;
+    }
+
+    .officer-name {
+      text-align: left;
+      font-weight: 850;
+    }
+
+    .timing-grid {
+      display: grid;
+      gap: 5px;
+      border: 1px solid var(--md-outline-variant);
+      border-radius: 7px;
+      background: var(--md-surface-container-low);
+      padding: 5px;
+    }
+
+    .timing-row {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 5px;
+      align-items: center;
+    }
+
+    .signal {
+      border-radius: 999px;
+      color: #fff;
+      padding: 2px 6px;
+      text-align: center;
+      font-size: 8.8px;
+      font-weight: 850;
+    }
+
+    .signal.green {
+      background: var(--green);
+    }
+
+    .signal.yellow {
+      background: var(--amber);
+    }
+
+    .signal.red {
+      background: var(--danger);
+    }
+
+    .timing-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.7px;
+      line-height: 1.18;
+      overflow: hidden;
+      border-radius: 7px;
+    }
+
+    .timing-table th {
+      background: var(--tm-blue);
+      color: #fff;
+      padding: 4px 3px;
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .timing-table td {
+      border-top: 1px solid var(--md-outline-variant);
+      padding: 4px 3px;
+      vertical-align: top;
+      background: var(--md-surface-container-low);
+    }
+
+    .timing-table .rule-name {
+      color: var(--tm-maroon);
+      font-weight: 900;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 1.05fr 0.9fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .footer-card {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .footer-card h3 {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .footer-card .footer-body {
+      font-size: 8.7px;
+      line-height: 1.22;
+      gap: 4px;
+      padding: 7px 9px;
+    }
+
+    .rule-list {
+      margin: 0;
+      padding-left: 17px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .compact-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .compact-list li {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+      align-items: start;
+      border-bottom: 1px dashed var(--md-outline-variant);
+      padding-bottom: 5px;
+    }
+
+    .compact-list li:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .compact-label {
+      color: var(--tm-blue);
+      font-weight: 900;
+    }
+
+    .snapshot-grid {
+      display: grid;
+      gap: 6px;
+    }
+
+    .snapshot-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 7px;
+      align-items: start;
+    }
+
+    .snapshot-label {
+      color: var(--tm-maroon);
+      font-weight: 900;
+    }
+
+    .join-note {
+      border-left: 4px solid var(--tm-yellow);
+      padding-left: 7px;
+      font-weight: 800;
+      color: var(--tm-blue);
+    }
+
+    .ref-page {
+      width: var(--page-width);
+      height: var(--page-height);
+      min-height: 0;
+      background: #fff;
+      color: #061b3d;
+      box-shadow: var(--shadow-strong);
+      outline: 1px solid #c9cdd3;
+      padding: 4mm;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      gap: 2.6mm;
+      font-family: "Gotham", "Montserrat", "Aptos", "Segoe UI", Arial, sans-serif;
+    }
+
+    .ref-header {
+      background: #fff;
+      border-radius: 0;
+      color: #092968;
+      padding: 6px 8px 7px;
+      display: grid;
+      grid-template-columns: 124px minmax(0, 1fr) 170px;
+      gap: 11px;
+      align-items: center;
+      min-height: 132px;
+    }
+
+    .ref-logo {
+      width: 108px;
+      height: 108px;
+      border-radius: 999px;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      overflow: visible;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .ref-logo img {
+      width: 116%;
+      height: 116%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .ref-title-kicker {
+      margin: 0 0 6px;
+      color: #092968;
+      font-size: 16px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .ref-title h2 {
+      color: #092968;
+      font-size: 39px;
+      line-height: 0.9;
+      letter-spacing: 0;
+      margin: 0 0 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ref-theme-strip {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 7px;
+      max-width: 460px;
+    }
+
+    .ref-chip,
+    .ref-meta-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.2px;
+      font-weight: 850;
+    }
+
+    .ref-tag {
+      border-radius: 999px;
+      min-height: 20px;
+      padding: 4px 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 8.2px;
+      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ref-tag-red {
+      background: linear-gradient(135deg, #8e102b, #b20f3c);
+    }
+
+    .ref-tag-blue {
+      background: linear-gradient(135deg, #001f55, #082f75);
+    }
+
+    .ref-topic {
+      color: var(--tm-maroon);
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 900;
+      font-style: italic;
+      white-space: nowrap;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .ref-word {
+      color: #092968;
+      font-size: 10.4px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .ref-chip {
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: 9px;
+      min-height: 24px;
+      padding: 5px 8px;
+      background: linear-gradient(180deg, #eef7ff, #d8ecfb);
+      color: #082a55;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .ref-meta-pill {
+      color: #0a2863;
+      min-height: 32px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      font-size: 14px;
+      font-weight: 860;
+    }
+
+    .ref-meta-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .ref-meta-label {
+      color: #092968;
+      font-size: 8.6px;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .ref-meta-value {
+      color: #111;
+      font-size: 10.9px;
+      font-weight: 850;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .ref-chip-icon,
+    .ref-meta-icon,
+    .ref-section-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: currentColor;
+      border: 1.5px solid currentColor;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .ref-svg-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.4;
+      display: block;
+    }
+
+    .ref-meta-stack {
+      display: grid;
+      gap: 8px;
+      border-left: 1.5px solid #cbd5e6;
+      padding-left: 19px;
+    }
+
+    .ref-meta-pill .ref-meta-icon {
+      width: 27px;
+      height: 27px;
+      border: 0;
+      color: #092968;
+    }
+
+    .ref-meta-pill .ref-meta-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 2.1;
+    }
+
+    .ref-body {
+      display: grid;
+      grid-template-columns: 68mm minmax(0, 1fr);
+      gap: 3mm;
+      align-items: start;
+      min-height: 0;
+    }
+
+    .ref-sidebar {
+      display: grid;
+      gap: 2.4mm;
+      align-content: start;
+      height: 100%;
+    }
+
+    .ref-card,
+    .ref-flow-card,
+    .ref-bottom-card {
+      border: 1px solid rgba(169, 178, 177, 0.52);
+      border-radius: 9px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 2px 9px rgba(0, 65, 101, 0.13);
+    }
+
+    .ref-card-title {
+      min-height: 29px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      background: linear-gradient(135deg, #001f55, #07336f);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ref-card-title .ref-section-icon {
+      width: 23px;
+      height: 23px;
+      color: #fff;
+      background: transparent;
+      border-color: #fff;
+      box-shadow: none;
+    }
+
+    .ref-card:nth-child(2) .ref-card-title {
+      color: #fff;
+      background: linear-gradient(135deg, #8e102b, #b20f3c);
+    }
+
+    .ref-card:nth-child(2) .ref-card-title .ref-section-icon {
+      background: transparent;
+      border-color: #fff;
+    }
+
+    .ref-card-body {
+      padding: 8px 10px 10px;
+      font-size: 8.8px;
+      line-height: 1.26;
+      display: grid;
+      gap: 4px;
+    }
+
+    .ref-about-line {
+      border-top: 1px solid #ece4df;
+      padding-top: 4px;
+    }
+
+    .ref-about-line:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .ref-icon-line {
+      display: grid;
+      grid-template-columns: 19px minmax(0, 1fr);
+      gap: 6px;
+      align-items: start;
+      border-top: 1px solid #ece4df;
+      padding-top: 4px;
+    }
+
+    .ref-icon-line:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .ref-line-icon {
+      color: #092e68;
+      font-weight: 900;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .ref-line-icon.ref-svg-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-grid;
+      place-items: center;
+      margin-top: -1px;
+    }
+
+    .ref-line-icon.ref-svg-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.2;
+    }
+
+    .ref-timing-stack {
+      display: grid;
+      gap: 5px;
+    }
+
+    .ref-timing-card {
+      border: 0;
+      border-radius: 0;
+      border-top: 1px solid #e1e3e2;
+      padding: 6px 0 7px;
+      display: grid;
+      gap: 4px;
+      background: #fff;
+    }
+
+    .ref-timing-card h4 {
+      margin: 0;
+      color: var(--tm-maroon);
+      font-size: 9.2px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .ref-signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2px 5px;
+    }
+
+    .ref-signal-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 3px;
+      font-size: 7.1px;
+      align-items: center;
+    }
+
+    .ref-signal-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 850;
+    }
+
+    .ref-signal-dot {
+      width: 12px;
+      height: 4px;
+      border-radius: 99px;
+      display: inline-block;
+    }
+
+    .ref-signal-dot.green {
+      background: #15a95d;
+    }
+
+    .ref-signal-dot.yellow {
+      background: #f4c51d;
+    }
+
+    .ref-signal-dot.red {
+      background: #f43b37;
+    }
+
+    .ref-note {
+      border: 1px solid #f5d8a7;
+      background: #fff7e6;
+      border-radius: 7px;
+      padding: 5px;
+      display: grid;
+      grid-template-columns: 16px minmax(0, 1fr);
+      gap: 6px;
+      color: #2b2417;
+      font-size: 7.3px;
+    }
+
+    .ref-note .ref-line-icon {
+      color: #dd9400;
+    }
+
+    .ref-qr-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      text-align: center;
+    }
+
+    .ref-qr-box {
+      border: 1px solid #e6e9e9;
+      border-radius: 7px;
+      padding: 5px;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      background: #fff;
+      font-weight: 850;
+      color: #071632;
+    }
+
+    .ref-qr-box img {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 3px;
+    }
+
+    .ref-kv-list {
+      display: grid;
+      gap: 2px;
+    }
+
+    .ref-kv-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 6px;
+      font-size: 8.1px;
+    }
+
+    .ref-kv-row.ref-kv-wide {
+      grid-template-columns: 28px minmax(0, 1fr);
+    }
+
+    .ref-kv-row.ref-kv-wide .ref-kv-value {
+      text-align: left;
+    }
+
+    .ref-kv-key {
+      font-weight: 900;
+    }
+
+    .ref-kv-value {
+      text-align: right;
+    }
+
+    .ref-flow-card {
+      padding: 0;
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .ref-flow-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--tm-maroon), #b10f3f);
+      font-size: 16px;
+      font-weight: 900;
+      margin: 0;
+      padding: 6px 12px;
+      text-transform: uppercase;
+    }
+
+    .ref-flow-title .ref-section-icon {
+      background: transparent;
+      border-color: #fff;
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+    }
+
+    .ref-table-wrap {
+      border: 0;
+      border-radius: 0;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .ref-agenda-table {
+      width: 100%;
+      height: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 7.8px;
+      line-height: 1.08;
+    }
+
+    .ref-col-stage {
+      width: 86px;
+    }
+
+    .ref-col-time {
+      width: 58px;
+    }
+
+    .ref-col-duration {
+      width: 60px;
+    }
+
+    .ref-col-owner {
+      width: 92px;
+    }
+
+    .ref-agenda-table th {
+      background: linear-gradient(135deg, #002f5e, #003e68);
+      color: #fff;
+      padding: 5px 4px;
+      text-align: center;
+      font-size: 7.8px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ref-agenda-table td {
+      border-top: 1px solid #dedede;
+      border-left: 1px solid #dedede;
+      padding: 2.3px 5px;
+      vertical-align: middle;
+      overflow-wrap: anywhere;
+    }
+
+    .ref-agenda-table td:first-child,
+    .ref-agenda-table th:first-child {
+      border-left: 0;
+    }
+
+    .ref-stage-cell {
+      background: linear-gradient(135deg, #fff9f4, #fdf0e3);
+      color: var(--tm-maroon);
+      font-weight: 900;
+      padding: 0 5px;
+      overflow: hidden;
+    }
+
+    .ref-stage-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      justify-items: center;
+      align-content: center;
+      text-align: center;
+      min-height: 100%;
+    }
+
+    .ref-stage-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--tm-maroon);
+      font-size: 14px;
+    }
+
+    .ref-stage-label {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+    }
+
+    .ref-stage-name {
+      font-size: 8.8px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .ref-time-col {
+      text-align: center;
+      font-weight: 850;
+      color: #082c63;
+      font-size: 8.8px;
+    }
+
+    .ref-duration-col {
+      text-align: center;
+      font-weight: 850;
+    }
+
+    .ref-owner-col {
+      text-align: center;
+      font-weight: 760;
+    }
+
+    .ref-program-title {
+      font-weight: 760;
+    }
+
+    .ref-program-detail {
+      display: none;
+    }
+
+    .ref-agenda-table tbody tr:nth-child(odd) td:not(.ref-stage-cell) {
+      background: #fff;
+    }
+
+    .ref-agenda-table tbody tr:nth-child(even) td:not(.ref-stage-cell) {
+      background: #fbfbfb;
+    }
+
+    .ref-agenda-table tr.ref-highlight-green td:not(.ref-stage-cell) {
+      background: #f9fbf6;
+    }
+
+    .ref-agenda-table tr.ref-highlight-blue td:not(.ref-stage-cell) {
+      background: #f7fbff;
+    }
+
+    .ref-vision-bar {
+      display: none;
+      margin-top: 0;
+      min-height: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #fff;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      font-size: 9.8px;
+      font-weight: 900;
+    }
+
+    .ref-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.95fr 1fr;
+      gap: 3.2mm;
+    }
+
+    .ref-bottom-card {
+      min-height: 132px;
+      padding: 8px 12px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .ref-bottom-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #092e68;
+      font-size: 13.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ref-bottom-title .ref-section-icon {
+      color: var(--tm-blue);
+      border-color: var(--tm-blue);
+    }
+
+    .ref-participation-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      justify-items: center;
+      text-align: center;
+      margin-top: 3px;
+    }
+
+    .ref-participation-item {
+      display: grid;
+      justify-items: center;
+      gap: 5px;
+      color: #092e68;
+      font-size: 7.5px;
+      font-weight: 900;
+    }
+
+    .ref-mini-icon {
+      width: 23px;
+      height: 23px;
+      border: 0;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .ref-mini-icon svg {
+      width: 21px;
+      height: 21px;
+      stroke-width: 2.2;
+    }
+
+    .ref-circle-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #092e68;
+      border: 1.5px solid #b8cdf5;
+      background: #fff;
+    }
+
+    .ref-circle-icon svg {
+      width: 23px;
+      height: 23px;
+      stroke-width: 2;
+    }
+
+    .ref-bottom-copy {
+      margin: 0;
+      text-align: center;
+      color: #092e68;
+      font-size: 9.2px;
+      line-height: 1.32;
+      font-weight: 850;
+    }
+
+    .ref-live-vote {
+      text-align: center;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      font-size: 8.2px;
+      color: #0c1e40;
+    }
+
+    .ref-live-vote img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+    }
+
+    .ref-scan-time {
+      color: #13803d;
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      justify-self: center;
+      font-weight: 900;
+      font-size: 10.2px;
+    }
+
+    .ref-vote-awards {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      color: #061b3d;
+      font-size: 7.8px;
+      font-weight: 850;
+    }
+
+    .ref-vote-note {
+      color: #137a3b;
+      font-size: 8.2px;
+      font-weight: 850;
+    }
+
+    .ref-meeting-rules {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      font-size: 8.4px;
+      line-height: 1.16;
+      color: #092968;
+      font-weight: 760;
+    }
+
+    .ref-rule-item {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ref-rule-icon {
+      width: 31px;
+      height: 31px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #f47a13;
+      border: 2px solid #f47a13;
+      background: #fff8ef;
+    }
+
+    .ref-rule-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.1;
+    }
+
+    .ref-bottom-card:nth-child(1) {
+      background: linear-gradient(135deg, #f8fbff, #edf6ff);
+    }
+
+    .ref-bottom-card:nth-child(2) {
+      background: linear-gradient(135deg, #fbfff7, #eff8e8);
+    }
+
+    .ref-bottom-card:nth-child(2) .ref-bottom-title {
+      color: #137a3b;
+    }
+
+    .ref-bottom-card:nth-child(2) .ref-section-icon {
+      color: #137a3b;
+      border-color: #137a3b;
+    }
+
+    .ref-bottom-card:nth-child(3) {
+      background: linear-gradient(135deg, #fffdf5, #fff4dd);
+      border-color: #f1c47c;
+    }
+
+    .ref-bottom-card:nth-child(3) .ref-bottom-title {
+      color: #c77700;
+    }
+
+    .ref-bottom-card:nth-child(3) .ref-section-icon {
+      color: #c77700;
+      border-color: #c77700;
+    }
+
+    .ref-footer {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto 1fr;
+      align-items: center;
+      gap: 14px;
+      color: #082c63;
+      font-size: 11.6px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 0 12px 0;
+    }
+
+    .ref-footer-line {
+      height: 1px;
+      background: #082c63;
+      opacity: 0.85;
+    }
+
+    .ref-footer-heart {
+      color: #b40e3b;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .ref-meeting-rules li::marker {
+      color: var(--tm-maroon);
+    }
+
+    .word-chip {
+      display: inline-flex;
+      border-radius: 999px;
+      background: var(--md-tertiary-container);
+      color: var(--md-on-tertiary-container);
+      padding: 5px 10px;
+      font-weight: 900;
+      width: fit-content;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(24px);
+      opacity: 0;
+      pointer-events: none;
+      background: #17202a;
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 20;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .control-panel {
+        min-height: auto;
+      }
+
+      .editor-stack {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 10px;
+      }
+
+      .field-grid,
+      .info-strip,
+      .content-grid,
+      .footer-grid,
+      .page-header {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-panel {
+        padding: 10px;
+      }
+
+      .print-page:not(.ref-page) {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        padding: 18px;
+      }
+
+      .ref-page {
+        width: var(--page-width);
+        height: var(--page-height);
+        min-height: 0;
+        padding: 7mm;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        background: #fff;
+        width: var(--page-width);
+        height: var(--page-height);
+        margin: 0;
+        padding: 0;
+      }
+
+      .control-panel,
+      .preview-toolbar,
+      .toast {
+        display: none !important;
+      }
+
+      .app-shell,
+      .preview-panel,
+      .preview-stage,
+      .preview-sheet {
+        display: block !important;
+        width: var(--page-width) !important;
+        height: var(--page-height) !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #fff;
+        box-shadow: none;
+        border: 0;
+        overflow: hidden !important;
+      }
+
+      .preview-sheet {
+        --preview-scale: 1 !important;
+      }
+
+      .print-page {
+        box-shadow: none;
+        width: var(--page-width) !important;
+        height: var(--page-height) !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        transform: none !important;
+        transform-origin: top left !important;
+        margin: 0 !important;
+        break-after: auto;
+      }
+
+      .preview-sheet .print-page,
+      #printPage {
+        display: grid !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="control-panel" aria-label="Agenda editor">
+      <header class="app-header">
+        <div class="brand-row">
+          <div class="brand-mark" aria-label="Toastmasters International">
+            <img src="assets/toastmasters-logo-color-png.png" alt="Toastmasters International logo" />
+          </div>
+          <div>
+            <h1>English Agenda Builder</h1>
+            <p class="subtitle">CBD Toastmasters Club agenda workspace, seeded from Meeting #441.</p>
+          </div>
+        </div>
+        <div class="status-row">
+          <span class="save-status" id="saveStatus">Local draft ready</span>
+          <span class="agenda-count" id="agendaCount">0 agenda lines</span>
+        </div>
+        <div class="top-actions">
+          <button class="btn primary" id="printBtn" type="button">Print A4</button>
+          <button class="btn" id="copyBtn" type="button">Copy Text</button>
+          <button class="btn" id="exportBtn" type="button">Export JSON</button>
+          <button class="btn" id="importBtn" type="button">Import JSON</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset Defaults</button>
+          <input class="hidden-input" id="importFile" type="file" accept="application/json,.json" />
+        </div>
+      </header>
+
+      <div class="editor-stack">
+        <details class="editor-section" open>
+          <summary>Meeting Basics</summary>
+          <div class="section-body">
+            <div class="field-grid" id="meetingFields"></div>
+          </div>
+        </details>
+
+        <details class="editor-section" open>
+          <summary>Agenda Items</summary>
+          <div class="section-body">
+            <div class="agenda-toolbar">
+              <div class="action-row">
+                <button class="btn primary" id="addItemBtn" type="button">Add Item</button>
+                <button class="btn" id="addSectionBtn" type="button">Add Section</button>
+                <button class="btn" id="rescheduleBtn" type="button">Auto Time</button>
+              </div>
+              <button class="btn ghost" id="clearFormBtn" type="button">Clear Form</button>
+            </div>
+            <div class="agenda-list" id="agendaList"></div>
+            <form class="agenda-form" id="agendaForm">
+              <div class="field-grid">
+                <div class="field">
+                  <label for="itemKind">Type</label>
+                  <select class="select" id="itemKind">
+                    <option value="item">Agenda item</option>
+                    <option value="section">Section heading</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="itemTime">Start time</label>
+                  <input class="input" id="itemTime" type="time" />
+                </div>
+                <div class="field full">
+                  <label for="itemTitle">Program</label>
+                  <input class="input" id="itemTitle" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="itemDuration">Duration</label>
+                  <input class="input" id="itemDuration" autocomplete="off" placeholder="5 or 5-7" />
+                </div>
+                <div class="field">
+                  <label for="itemPerson">Participant</label>
+                  <input class="input" id="itemPerson" autocomplete="off" />
+                </div>
+                <div class="field full">
+                  <label for="itemDetail">Details</label>
+                  <textarea class="textarea" id="itemDetail"></textarea>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn primary" id="saveItemBtn" type="submit">Save Item</button>
+                <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
+                <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
+              </div>
+            </form>
+          </div>
+        </details>
+
+        <details class="editor-section">
+          <summary>Club Details</summary>
+          <div class="section-body">
+            <div class="field">
+              <label for="aboutClub">About CBD Toastmasters</label>
+              <textarea class="textarea" id="aboutClub" data-field="aboutClub"></textarea>
+            </div>
+            <div class="field">
+              <label for="officers">Officer Team</label>
+              <textarea class="textarea" id="officers" data-field="officers"></textarea>
+            </div>
+            <div class="field">
+              <label for="roleAssignments">Meeting Role Assignments</label>
+              <textarea class="textarea" id="roleAssignments" data-field="roleAssignments"></textarea>
+            </div>
+            <div class="field">
+              <label for="timingRules">Timing Rules</label>
+              <textarea class="textarea" id="timingRules" data-field="timingRules"></textarea>
+            </div>
+            <div class="field">
+              <label for="meetingRules">Meeting Rules</label>
+              <textarea class="textarea" id="meetingRules" data-field="meetingRules"></textarea>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="preview-panel" aria-label="A4 preview">
+      <div class="preview-toolbar">
+        <strong>A4 Preview</strong>
+        <span id="previewMeta">Live from local draft</span>
+      </div>
+      <div class="preview-stage" id="previewStage">
+        <div class="preview-sheet" id="previewSheet">
+          <article class="print-page" id="printPage"></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "cbd_english_agenda_builder_v2";
+
+    const DEFAULT_DATA = {
+      clubName: "CBD Toastmasters Club",
+      meetingTitle: "EOE & CBD #441 English Meeting",
+      meetingNumber: "441",
+      date: "2026-05-08",
+      weekday: "Friday",
+      meetingTime: "19:30-21:30",
+      agendaStartTime: "19:00",
+      location: "Hall M3, 7B2, 7F, AB Building, Tianji Building, Tian'an Cyber Park, Futian District, Shenzhen",
+      localAddress: "Room M3, 7F, 7B2, AB Block, Tianji Building, Tian'an Cyber Park.",
+      theme: "The Art of Slowing Down",
+      wordOfDay: "Serenity",
+      meetingManager: "Jackson & Tracy",
+      toastmaster: "Momo Lee",
+      joinUs: "Guests are welcome. Join the meeting, vote for best speakers, and connect with CBD members after the session.",
+      meetingVision: "Meeting Vision: We are happy to build a joyful learning journey with everyone. Thank you.",
+      nextTheme: "Summer Outfits",
+      nextMeetingTime: "Next Friday, 19:30-21:30",
+      nextVenue: "Hall M3, 7B2, Tianji Building, Tian'an Cyber Park",
+      guestParticipation: "Guest Intro | Table Topics | Reflection Sharing",
+      liveVotingTitle: "Scan at 21:00",
+      liveVotingNote: "Best Speaker | Best Evaluator | Best Table Topic",
+      officialQrSrc: "assets/excel/sheet1_image_4_950x1295.png",
+      membershipQrSrc: "assets/excel/sheet1_image_5_950x1295.png",
+      votingQrSrc: "assets/excel/sheet1_image_8_300x300.png",
+      aboutClub: [
+        "CBD Toastmasters Club is based in Futian and belongs to District 118, Division I, Area I1.",
+        "Founded on June 1, 2017, with 40+ active members in Shenzhen.",
+        "Offline weekly on Friday evenings, 19:30-21:30.",
+        "Slogan: We learn hard, we play harder.",
+        "CBD stands for Confident, Brilliant, Dynamic."
+      ].join("\n"),
+      officers: [
+        "Term | The 18th Officer Team (2026.1-2026.6)",
+        "President | Momo Lee",
+        "VPE | Tracy Chen",
+        "VPM | Elvis Liu",
+        "VPPR | Tiffany Tan",
+        "Secretary | Min Chen",
+        "Treasurer | Nancy Xia",
+        "SAA | Lisa Yang"
+      ].join("\n"),
+      timingRules: [
+        "Less than or equal to 2 minutes | Green: 1 minute left | Yellow: 30 seconds left | Red: time is up | Bell: 30 seconds later",
+        "Less than or equal to 3 minutes | Green: 2 minutes left | Yellow: 30 seconds left | Red: time is up | Bell: 30 seconds later",
+        "Less than or equal to 7 minutes and sessions over 7 minutes | Green: 2 minutes left | Yellow: 1 minute left | Red: time is up | Bell: 30 seconds later"
+      ].join("\n"),
+      meetingRules: [
+        "Please turn off your phone or switch it to silent mode during the meeting.",
+        "Please avoid political, religious, or sexual topics during club meetings.",
+        "Please take away your belongings and trash when you leave the room."
+      ].join("\n"),
+      roleAssignments: [
+        "TME | Momo Lee",
+        "SAA | Jackson / Rebecca / Wilson / Lisa",
+        "Photo | Bandari (EOE & CBD)",
+        "Timer | Ruby Lai",
+        "Grammar | Gary Jiang",
+        "Hark | Nana (EOE)",
+        "TTE | Dylan (EOE)",
+        "LGT | Wilson Li",
+        "Award | Meeting Team"
+      ].join("\n"),
+      items: [
+        { id: "s-opening", kind: "section", title: "Opening Session" },
+        { id: "i-registration", kind: "item", time: "19:00", title: "Member and Guest Registration", duration: "30", person: "All", detail: "" },
+        { id: "i-rules", kind: "item", time: "19:30", title: "Brief Introduction of Meeting Rules (SAA)", duration: "2", person: "Jackson / Rebecca / Wilson / Lisa", detail: "" },
+        { id: "i-president", kind: "item", time: "19:32", title: "President Opening Remarks", duration: "2", person: "Momo Lee", detail: "" },
+        { id: "i-tme", kind: "item", time: "19:34", title: "Introduction of Facilitators by Toastmaster of the Evening", duration: "2", person: "Momo Lee", detail: "" },
+        { id: "i-timer", kind: "item", time: "19:36", title: "Timer's Introduction", duration: "2", person: "Ruby Lai", detail: "" },
+        { id: "i-grammarian", kind: "item", time: "19:38", title: "Grammarian's Introduction", duration: "2", person: "Gary Jiang", detail: "" },
+        { id: "i-hark", kind: "item", time: "19:40", title: "Hark Master's Introduction", duration: "2", person: "Nana (EOE)", detail: "" },
+        { id: "i-photographer", kind: "item", time: "19:42", title: "Photographer's Introduction", duration: "2", person: "Bandari (EOE)", detail: "" },
+        { id: "i-guests", kind: "item", time: "19:44", title: "Guest Intro", duration: "5", person: "Wilson Li", detail: "Each guest has 30 seconds." },
+        { id: "s-prepared", kind: "section", title: "Prepared Speech Session" },
+        { id: "i-prepared-open", kind: "item", time: "19:49", title: "Prepared Speech Session Opening", duration: "1", person: "Momo Lee", detail: "" },
+        { id: "i-speech-1", kind: "item", time: "19:50", title: "My Third Odyssey", duration: "5-7", person: "Magnolia Yang", detail: "Prepared Speech 1 | PM L1-3-1 | Practice using vocal variety or body language to enhance speech delivery." },
+        { id: "i-speech-2", kind: "item", time: "19:57", title: "We Are Good Enough", duration: "5-7", person: "Dylan (EOE)", detail: "Prepared Speech 2 | DL L1-4-2 | Deliver two speeches, receive feedback, apply it, and practice constructive feedback." },
+        { id: "s-table-topics", kind: "section", title: "Table Topics Session" },
+        { id: "i-table-topics", kind: "item", time: "20:04", title: "Table Topic Session", duration: "25", person: "Elvis Liu", detail: "" },
+        { id: "i-break", kind: "item", time: "20:29", title: "Group Photo and Tea Break", duration: "15", person: "All", detail: "" },
+        { id: "s-evaluation", kind: "section", title: "Evaluation Session" },
+        { id: "i-evaluation-open", kind: "item", time: "20:44", title: "Evaluation Session Opening", duration: "1", person: "Momo Lee", detail: "" },
+        { id: "i-eval-1", kind: "item", time: "20:45", title: "Prepared Speech Evaluation 1", duration: "3", person: "Jenny", detail: "Evaluator for Magnolia Yang." },
+        { id: "i-eval-2", kind: "item", time: "20:48", title: "Prepared Speech Evaluation 2", duration: "3", person: "Nana (EOE)", detail: "Evaluator for Dylan (EOE)." },
+        { id: "i-tte", kind: "item", time: "20:51", title: "Table Topic Evaluation", duration: "6", person: "Dylan (EOE)", detail: "" },
+        { id: "i-facilitator-report", kind: "item", time: "20:57", title: "Facilitator's Report", duration: "1", person: "Momo Lee", detail: "" },
+        { id: "i-timer-report", kind: "item", time: "20:58", title: "Timer's Report", duration: "3", person: "Ruby Lai", detail: "" },
+        { id: "i-grammarian-report", kind: "item", time: "21:01", title: "Grammarian and Ah-Counter's Report", duration: "3", person: "Gary Jiang", detail: "" },
+        { id: "i-hark-report", kind: "item", time: "21:04", title: "Hark Master's Report", duration: "3", person: "Nana (EOE)", detail: "" },
+        { id: "i-photo-report", kind: "item", time: "21:07", title: "Photographer's Report", duration: "2", person: "Bandari (EOE)", detail: "" },
+        { id: "i-general-eval", kind: "item", time: "21:09", title: "General Evaluation", duration: "8", person: "Robin Luo", detail: "" },
+        { id: "s-closing", kind: "section", title: "Awards and Closing" },
+        { id: "i-vote", kind: "item", time: "21:17", title: "Vote for Best", duration: "1", person: "All", detail: "" },
+        { id: "i-moment", kind: "item", time: "21:18", title: "Moment of Truth", duration: "5", person: "Rebecca Guan", detail: "" },
+        { id: "i-awards", kind: "item", time: "21:23", title: "Awards for Best and Closing Remarks", duration: "3", person: "Momo Lee", detail: "" }
+      ]
+    };
+
+    const meetingFieldDefs = [
+      ["clubName", "Club Name", "text"],
+      ["meetingTitle", "Meeting Title", "text"],
+      ["meetingNumber", "Meeting Number", "text"],
+      ["date", "Date", "date"],
+      ["weekday", "Weekday", "text"],
+      ["meetingTime", "Meeting Time", "text"],
+      ["agendaStartTime", "Agenda Start", "time"],
+      ["meetingManager", "Meeting Manager", "text"],
+      ["toastmaster", "Toastmaster", "text"],
+      ["theme", "Theme", "text"],
+      ["wordOfDay", "Word of the Day", "text"],
+      ["location", "Location", "textarea"],
+      ["localAddress", "Local Address", "textarea"],
+      ["meetingVision", "Meeting Vision", "textarea"],
+      ["joinUs", "Join Us Note", "textarea"],
+      ["nextTheme", "Next Meeting Theme", "text"],
+      ["nextMeetingTime", "Next Meeting Time", "text"],
+      ["nextVenue", "Next Meeting Venue", "textarea"],
+      ["guestParticipation", "Guest Participation Tags", "text"],
+      ["liveVotingTitle", "Live Voting Title", "text"],
+      ["liveVotingNote", "Live Voting Note", "text"],
+      ["officialQrSrc", "Official QR Image", "image"],
+      ["membershipQrSrc", "Membership QR Image", "image"],
+      ["votingQrSrc", "Voting QR Image", "image"]
+    ];
+
+    const els = {};
+    let state = loadData();
+    let editingId = null;
+    let draggedId = null;
+    let toastTimer = null;
+
+    function $(selector) {
+      return document.querySelector(selector);
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return clone(DEFAULT_DATA);
+        const parsed = JSON.parse(saved);
+        return normalizeData({ ...clone(DEFAULT_DATA), ...parsed });
+      } catch (error) {
+        return clone(DEFAULT_DATA);
+      }
+    }
+
+    function normalizeData(data) {
+      const normalized = { ...clone(DEFAULT_DATA), ...data };
+      for (const key of [
+        "localAddress",
+        "joinUs",
+        "meetingVision",
+        "nextTheme",
+        "nextMeetingTime",
+        "nextVenue",
+        "guestParticipation",
+        "liveVotingTitle",
+        "liveVotingNote",
+        "officialQrSrc",
+        "membershipQrSrc",
+        "votingQrSrc",
+        "roleAssignments"
+      ]) {
+        if (!String(normalized[key] || "").trim()) {
+          normalized[key] = DEFAULT_DATA[key];
+        }
+      }
+      if (String(normalized.roleAssignments || "").includes("Photographer | Bandari")) {
+        normalized.roleAssignments = DEFAULT_DATA.roleAssignments;
+      }
+      if (String(normalized.officers || "").includes("Vice President Education")) {
+        normalized.officers = DEFAULT_DATA.officers;
+      }
+      if (String(normalized.aboutClub || "").includes("one of Shenzhen's most active")) {
+        normalized.aboutClub = DEFAULT_DATA.aboutClub;
+      }
+      if (/[\u4e00-\u9fff]/.test(String(normalized.localAddress || ""))) {
+        normalized.localAddress = DEFAULT_DATA.localAddress;
+      }
+      normalized.items = Array.isArray(data.items) ? data.items.map(normalizeItem) : clone(DEFAULT_DATA.items);
+      return normalized;
+    }
+
+    function normalizeItem(item) {
+      return {
+        id: item.id || newId(),
+        kind: item.kind === "section" ? "section" : "item",
+        time: item.time || "",
+        title: item.title || "",
+        duration: item.duration || "",
+        person: item.person || "",
+        detail: item.detail || ""
+      };
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      els.saveStatus.textContent = "Saved locally";
+      window.clearTimeout(saveData.timer);
+      saveData.timer = window.setTimeout(() => {
+        els.saveStatus.textContent = "Local draft ready";
+      }, 1400);
+    }
+
+    function newId() {
+      return `a-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function refIcon(name, className = "ref-section-icon") {
+      const icons = {
+        target: '<circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle>',
+        star: '<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"></path>',
+        calendar: '<rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16"></path>',
+        clock: '<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>',
+        hash: '<path d="M10 3 8 21M16 3l-2 18M4 9h17M3 15h17"></path>',
+        pin: '<path d="M12 21s7-5.2 7-12a7 7 0 0 0-14 0c0 6.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.2"></circle>',
+        info: '<circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path>',
+        stopwatch: '<circle cx="12" cy="13" r="8"></circle><path d="M9 2h6M12 13l3-3"></path>',
+        qr: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2M18 14h2M14 18h6M18 16v4"></path>',
+        users: '<path d="M16 20v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="8" r="4"></circle><path d="M22 20v-2a4 4 0 0 0-3-3.9M2 20v-2a4 4 0 0 1 3-3.9"></path>',
+        calendarDays: '<rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16M8 14h.01M12 14h.01M16 14h.01"></path>',
+        list: '<path d="M8 6h12M8 12h12M8 18h12"></path><path d="M4 6h.01M4 12h.01M4 18h.01"></path>',
+        heart: '<path d="M20.8 5.6a5.1 5.1 0 0 0-7.2 0L12 7.2l-1.6-1.6a5.1 5.1 0 1 0-7.2 7.2L12 21l8.8-8.2a5.1 5.1 0 0 0 0-7.2z"></path>',
+        shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path>',
+        phone: '<rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path>',
+        trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>',
+        eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle>',
+        user: '<circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path>',
+        circleStar: '<circle cx="12" cy="12" r="9"></circle><path d="m12 7 1.4 2.9 3.2.5-2.3 2.2.5 3.2-2.8-1.5-2.8 1.5.5-3.2-2.3-2.2 3.2-.5z"></path>',
+        pencil: '<path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"></path><path d="m14 6 4 4"></path>',
+        megaphone: '<path d="M3 11v2a2 2 0 0 0 2 2h2l4 4v-5l8 2V8l-8 2V5l-4 4H5a2 2 0 0 0-2 2z"></path>',
+        speech: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>',
+        handshake: '<path d="M8 12 4 16l4 4 4-4M16 12l4 4-4 4-4-4"></path><path d="M8 12l3-3h2l3 3M12 16l2-2"></path>',
+        group: '<path d="M7 20v-2a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v2"></path><circle cx="12" cy="7" r="4"></circle><path d="M4 14a3 3 0 0 0-2 3v1M20 14a3 3 0 0 1 2 3v1"></path>',
+        trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4a3 3 0 0 0 3 3M17 6h3a3 3 0 0 1-3 3"></path>',
+        bars: '<path d="M5 20V10M12 20V4M19 20v-7"></path>',
+      };
+      return `<span class="${escapeHtml(`${className} ref-svg-icon`)}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${icons[name] || icons.info}</svg></span>`;
+    }
+
+    function splitLines(value) {
+      return String(value || "")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+
+    function minutesFromDuration(value) {
+      const text = String(value || "").trim();
+      if (!text) return 0;
+      const range = text.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+      if (range) return Number(range[2]);
+      const single = text.match(/(\d+(?:\.\d+)?)/);
+      return single ? Number(single[1]) : 0;
+    }
+
+    function timeToMinutes(value) {
+      const match = String(value || "").match(/^(\d{1,2}):(\d{2})/);
+      if (!match) return 0;
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    function minutesToTime(total) {
+      const normalized = ((Math.round(total) % 1440) + 1440) % 1440;
+      const h = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const m = String(normalized % 60).padStart(2, "0");
+      return `${h}:${m}`;
+    }
+
+    function formatDisplayDate() {
+      if (!state.date) return "";
+      const parts = state.date.split("-");
+      if (parts.length !== 3) return state.date;
+      return `${parts[1]}/${parts[2]}/${parts[0]}`;
+    }
+
+    function setupElements() {
+      Object.assign(els, {
+        meetingFields: $("#meetingFields"),
+        agendaList: $("#agendaList"),
+        agendaCount: $("#agendaCount"),
+        agendaForm: $("#agendaForm"),
+        itemKind: $("#itemKind"),
+        itemTime: $("#itemTime"),
+        itemTitle: $("#itemTitle"),
+        itemDuration: $("#itemDuration"),
+        itemPerson: $("#itemPerson"),
+        itemDetail: $("#itemDetail"),
+        addItemBtn: $("#addItemBtn"),
+        addSectionBtn: $("#addSectionBtn"),
+        saveItemBtn: $("#saveItemBtn"),
+        duplicateItemBtn: $("#duplicateItemBtn"),
+        deleteItemBtn: $("#deleteItemBtn"),
+        clearFormBtn: $("#clearFormBtn"),
+        rescheduleBtn: $("#rescheduleBtn"),
+        printBtn: $("#printBtn"),
+        copyBtn: $("#copyBtn"),
+        exportBtn: $("#exportBtn"),
+        importBtn: $("#importBtn"),
+        resetBtn: $("#resetBtn"),
+        importFile: $("#importFile"),
+        aboutClub: $("#aboutClub"),
+        officers: $("#officers"),
+        roleAssignments: $("#roleAssignments"),
+        timingRules: $("#timingRules"),
+        meetingRules: $("#meetingRules"),
+        previewStage: $("#previewStage"),
+        previewSheet: $("#previewSheet"),
+        printPage: $("#printPage"),
+        previewMeta: $("#previewMeta"),
+        saveStatus: $("#saveStatus"),
+        toast: $("#toast")
+      });
+    }
+
+    function renderInputs() {
+      els.meetingFields.innerHTML = meetingFieldDefs.map(([key, label, type]) => {
+        const value = escapeHtml(state[key] || "");
+        if (type === "image") {
+          return `
+            <div class="field qr-upload-field">
+              <label for="field-${key}">${label}</label>
+              <div class="qr-upload-row">
+                <button class="qr-thumb-button" id="field-${key}" type="button" data-qr-upload="${key}" aria-label="Upload ${label}">
+                  <img class="qr-thumb" src="${value}" alt="${label} preview" />
+                </button>
+              </div>
+              <input class="hidden-input" type="file" accept="image/*" data-qr-file="${key}" />
+            </div>
+          `;
+        }
+        if (type === "textarea") {
+          return `
+            <div class="field full">
+              <label for="field-${key}">${label}</label>
+              <textarea class="textarea" id="field-${key}" data-meeting-field="${key}">${value}</textarea>
+            </div>
+          `;
+        }
+        return `
+          <div class="field">
+            <label for="field-${key}">${label}</label>
+            <input class="input" id="field-${key}" data-meeting-field="${key}" type="${type}" value="${value}" />
+          </div>
+        `;
+      }).join("");
+
+      for (const field of [els.aboutClub, els.officers, els.roleAssignments, els.timingRules, els.meetingRules]) {
+        field.value = state[field.dataset.field] || "";
+      }
+    }
+
+    function renderAgendaList() {
+      const itemCount = state.items.filter((item) => item.kind !== "section").length;
+      els.agendaCount.textContent = `${itemCount} agenda lines`;
+      els.agendaList.innerHTML = state.items.map((item, index) => {
+        const isActive = item.id === editingId;
+        const meta = item.kind === "section"
+          ? "Section heading"
+          : [item.duration ? `${item.duration} min` : "", item.person].filter(Boolean).join(" | ");
+        return `
+          <article class="agenda-card ${item.kind === "section" ? "section-card" : ""} ${isActive ? "active" : ""}" data-id="${escapeHtml(item.id)}" draggable="true" aria-label="Drag to reorder ${escapeHtml(item.title || "agenda item")}">
+            <div class="agenda-main">
+              <span class="drag-handle" aria-hidden="true"></span>
+              <div class="agenda-time">${escapeHtml(item.kind === "section" ? "" : item.time || "--:--")}</div>
+              <div>
+                <div class="agenda-title">${escapeHtml(item.title || "Untitled")}</div>
+                <div class="agenda-meta">${escapeHtml(meta)}</div>
+                ${item.detail ? `<div class="agenda-detail">${escapeHtml(item.detail)}</div>` : ""}
+              </div>
+            </div>
+            <div class="item-actions">
+              <button class="btn small" type="button" data-action="edit" data-id="${escapeHtml(item.id)}">Edit</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderPreview() {
+      els.printPage.className = "print-page ref-page";
+      els.previewMeta.textContent = `${state.meetingTitle} | ${formatDisplayDate()} ${state.meetingTime}`;
+      const groups = buildAgendaGroups();
+      const agendaRows = groups.map((group, groupIndex) => {
+        const meta = stageMeta(group.title, groupIndex);
+        return group.items.map((item, itemIndex) => `
+          <tr class="${highlightClass(item.title)}">
+            ${itemIndex === 0 ? `
+              <td class="ref-stage-cell" rowspan="${group.items.length}">
+                <div class="ref-stage-content">
+                  <span class="ref-stage-number">${groupIndex + 1}</span>
+                  <span class="ref-stage-label">
+                    ${refIcon(meta.icon)}
+                    <span class="ref-stage-name">${escapeHtml(meta.label)}</span>
+                  </span>
+                </div>
+              </td>
+            ` : ""}
+            <td class="ref-time-col">${escapeHtml(item.time || "")}</td>
+            <td>
+              <div class="ref-program-title">${escapeHtml(item.title)}</div>
+              ${item.detail ? `<div class="ref-program-detail">${escapeHtml(item.detail)}</div>` : ""}
+            </td>
+            <td class="ref-duration-col">${escapeHtml(item.duration)}</td>
+            <td class="ref-owner-col">${escapeHtml(item.person)}</td>
+          </tr>
+        `).join("");
+      }).join("");
+      const officialQr = state.officialQrSrc || DEFAULT_DATA.officialQrSrc;
+      const membershipQr = state.membershipQrSrc || DEFAULT_DATA.membershipQrSrc;
+      const votingQr = state.votingQrSrc || DEFAULT_DATA.votingQrSrc;
+
+      els.printPage.innerHTML = `
+        <header class="ref-header">
+          <div class="ref-logo">
+            <img src="assets/toastmasters-logo-color-png.png" alt="Toastmasters International logo" />
+          </div>
+          <div class="ref-title">
+            <p class="ref-title-kicker">${escapeHtml(state.clubName)}</p>
+            <h2>Meeting Agenda</h2>
+            <div class="ref-theme-strip">
+              <span class="ref-tag ref-tag-red">Theme</span>
+              <span class="ref-topic">${escapeHtml(state.theme)}</span>
+              <span class="ref-tag ref-tag-blue">Word of the Day</span>
+              <span class="ref-word">${escapeHtml(state.wordOfDay)}</span>
+            </div>
+          </div>
+          <div class="ref-meta-stack">
+            <div class="ref-meta-pill">${refIcon("calendar", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Date</span><span class="ref-meta-value">${escapeHtml(formatLongDate())}</span></span></div>
+            <div class="ref-meta-pill">${refIcon("clock", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Time</span><span class="ref-meta-value">${escapeHtml(state.meetingTime)}</span></span></div>
+            <div class="ref-meta-pill">${refIcon("users", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Meeting No.</span><span class="ref-meta-value">${escapeHtml(state.meetingNumber)}</span></span></div>
+          </div>
+        </header>
+
+        <section class="ref-body">
+          <aside class="ref-sidebar">
+            <section class="ref-card">
+              <h3 class="ref-card-title">${refIcon("info")}About Us</h3>
+              <div class="ref-card-body">
+                ${aboutUsHtml()}
+              </div>
+            </section>
+
+            <section class="ref-card">
+              <h3 class="ref-card-title">${refIcon("stopwatch")}Timing Signals</h3>
+              <div class="ref-card-body ref-timing-stack">
+                ${timingSignalCardsHtml(state.timingRules)}
+                <div class="ref-note">${refIcon("star", "ref-line-icon")}<span>Applause is a sign of respect. Please watch the timing signals and wrap up quickly.</span></div>
+              </div>
+            </section>
+
+            <section class="ref-card">
+              <h3 class="ref-card-title">${refIcon("qr")}Follow Us</h3>
+              <div class="ref-card-body">
+                <div class="ref-qr-grid">
+                  ${qrCardHtml(officialQr, "Official Account")}
+                  ${qrCardHtml(membershipQr, "Membership Inquiry")}
+                </div>
+              </div>
+            </section>
+
+            <section class="ref-card">
+              <h3 class="ref-card-title">${refIcon("users")}Club Officers</h3>
+              <div class="ref-card-body">${kvRowsHtml(state.officers)}</div>
+            </section>
+
+          </aside>
+
+          <section class="ref-flow-card">
+            <h3 class="ref-flow-title">${refIcon("list")}Meeting Flow</h3>
+            <div class="ref-table-wrap">
+              <table class="ref-agenda-table">
+                <colgroup>
+                  <col class="ref-col-stage" />
+                  <col class="ref-col-time" />
+                  <col class="ref-col-program" />
+                  <col class="ref-col-duration" />
+                  <col class="ref-col-owner" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Stage</th>
+                    <th>Time</th>
+                    <th>Program</th>
+                    <th>Duration<br>(min)</th>
+                    <th>Owner</th>
+                  </tr>
+                </thead>
+                <tbody>${agendaRows}</tbody>
+              </table>
+            </div>
+            <div class="ref-vision-bar">${refIcon("heart")}${escapeHtml(state.meetingVision)}</div>
+          </section>
+        </section>
+
+        <footer class="ref-bottom-grid">
+          <section class="ref-bottom-card">
+            <h3 class="ref-bottom-title">${refIcon("users")}Guest Participation</h3>
+            ${participationHtml(state.guestParticipation)}
+          </section>
+          <section class="ref-bottom-card">
+            <h3 class="ref-bottom-title">${refIcon("bars")}Live Voting</h3>
+            <div class="ref-live-vote">
+              <strong class="ref-scan-time">${escapeHtml(state.liveVotingTitle)}</strong>
+              <div class="ref-vote-awards">${escapeHtml(state.liveVotingNote).split("|").map((part) => `<span>${part.trim()}</span>`).join("<span>|</span>")}</div>
+              <img src="${escapeHtml(votingQr)}" alt="Live voting QR" />
+              <span class="ref-vote-note">Please vote after all sessions are completed.</span>
+            </div>
+          </section>
+          <section class="ref-bottom-card">
+            <h3 class="ref-bottom-title">${refIcon("shield")}Meeting Rules</h3>
+            ${meetingRulesListHtml(state.meetingRules)}
+          </section>
+        </footer>
+        <footer class="ref-footer">
+          <span class="ref-footer-line"></span>
+          <span>Where Leaders Are Made</span>
+          <span class="ref-footer-heart">${refIcon("heart", "ref-mini-icon")}</span>
+          <span>Toastmasters International</span>
+          <span class="ref-footer-line"></span>
+        </footer>
+      `;
+      syncPreviewScale();
+    }
+
+    function syncPreviewScale() {
+      if (!els.previewSheet || !els.printPage) return;
+      const pageWidth = els.printPage.offsetWidth || 794;
+      const pageHeight = els.printPage.offsetHeight || 1123;
+      const availableWidth = Math.max(280, (els.previewStage?.clientWidth || pageWidth) - 4);
+      const scale = Math.min(1, availableWidth / pageWidth);
+      els.previewSheet.style.setProperty("--preview-scale", scale.toFixed(4));
+      els.previewSheet.style.width = `${Math.ceil(pageWidth * scale)}px`;
+      els.previewSheet.style.height = `${Math.ceil(pageHeight * scale)}px`;
+      els.previewMeta.dataset.fit = els.printPage.scrollHeight <= els.printPage.clientHeight + 1 ? "ok" : "overflow";
+    }
+
+    function buildAgendaGroups() {
+      const groups = [];
+      let current = { title: "Arrival", items: [] };
+      for (const item of state.items) {
+        if (item.kind === "section") {
+          if (current.items.length) groups.push(current);
+          current = { title: item.title || "Session", items: [] };
+        } else {
+          current.items.push(item);
+        }
+      }
+      if (current.items.length) groups.push(current);
+      return groups;
+    }
+
+    function stageMeta(title, index) {
+      const normalized = String(title || "").toLowerCase();
+      if (normalized.includes("prepared")) return { label: "Prepared Speeches", icon: "speech" };
+      if (normalized.includes("table")) return { label: "Table Topics", icon: "megaphone" };
+      if (normalized.includes("evaluation")) return { label: "Guests & Feedback", icon: "users" };
+      if (normalized.includes("award") || normalized.includes("closing")) return { label: "Sharing", icon: "trophy" };
+      if (normalized.includes("opening")) return { label: index === 0 ? "Arrival & Opening" : "Opening", icon: "group" };
+      return { label: title || "Session", icon: "pin" };
+    }
+
+    function highlightClass(title) {
+      const text = String(title || "").toLowerCase();
+      if (text.includes("guest intro") || text.includes("vote")) return "ref-highlight-green";
+      if (text.includes("photo") || text.includes("tea break")) return "ref-highlight-blue";
+      return "";
+    }
+
+    function formatLongDate() {
+      if (!state.date) return `${state.weekday || ""}`.trim();
+      const date = new Date(`${state.date}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return `${state.date}, ${state.weekday || ""}`.trim();
+      const month = date.toLocaleString("en-US", { month: "long" });
+      return `${month} ${date.getDate()}, ${date.getFullYear()}, ${state.weekday || ""}`.trim().replace(/,\s*$/, "");
+    }
+
+    function aboutUsHtml() {
+      const lines = splitLines(state.aboutClub);
+      const intro = lines.slice(0, 2).join(" ");
+      const venue = state.location || state.localAddress;
+      return `
+        <p class="ref-about-line">${escapeHtml(intro)}</p>
+        <div class="ref-icon-line">${refIcon("eye", "ref-line-icon")}<span><strong>Vision:</strong> ${escapeHtml(state.meetingVision.replace(/^Meeting Vision:\s*/i, ""))}</span></div>
+        <div class="ref-icon-line">${refIcon("clock", "ref-line-icon")}<span><strong>Meeting Time:</strong> ${escapeHtml(state.weekday)}, ${escapeHtml(state.meetingTime)}</span></div>
+        <div class="ref-icon-line">${refIcon("pin", "ref-line-icon")}<span><strong>Venue:</strong> ${escapeHtml(venue)}</span></div>
+      `;
+    }
+
+    function timingSignalCardsHtml(value) {
+      return splitLines(value).map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        const title = parts.shift() || "";
+        const text = (name) => {
+          const part = parts.find((entry) => entry.toLowerCase().startsWith(name));
+          return part && part.includes(":") ? part.split(":").slice(1).join(":").trim() : "";
+        };
+        return `
+          <div class="ref-timing-card">
+            <h4>${escapeHtml(shortTimingTitle(title))}</h4>
+            <div class="ref-signal-grid">
+              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot green"></i>Green</span><span>${escapeHtml(shortSignalText(text("green")))}</span></div>
+              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot yellow"></i>Yellow</span><span>${escapeHtml(shortSignalText(text("yellow")))}</span></div>
+              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot red"></i>Red</span><span>${escapeHtml(shortSignalText(text("red") || "Time is up"))}</span></div>
+              <div class="ref-signal-row"><span class="ref-signal-mark">Bell</span><span>${escapeHtml(shortSignalText(text("bell")))}</span></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function shortTimingTitle(title) {
+      if (title.includes("2")) return "3 Minutes or Less";
+      if (title.includes("3")) return "3-10 Minutes";
+      return "Over 10 Minutes";
+    }
+
+    function shortSignalText(value) {
+      return String(value || "")
+        .replace(/minutes?/gi, "min")
+        .replace(/seconds?/gi, "sec")
+        .replace(/later/gi, "overtime")
+        .replace(/time is up/gi, "Time is up")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function qrCardHtml(src, label) {
+      return `
+        <div class="ref-qr-box">
+          <img src="${escapeHtml(src)}" alt="${escapeHtml(label)} QR" />
+          <span>${escapeHtml(label)}</span>
+        </div>
+      `;
+    }
+
+    function kvRowsHtml(value) {
+      const rows = splitLines(value);
+      return `<div class="ref-kv-list">${rows.map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        const isWide = (parts[0] || "").toLowerCase() === "term";
+        if (isWide) {
+          return `<div class="ref-kv-row ref-kv-wide"><span class="ref-kv-key">${escapeHtml(parts[0] || "")}:</span><span class="ref-kv-value">${escapeHtml(parts[1] || "")}</span></div>`;
+        }
+        return `<div class="ref-kv-row"><span class="ref-kv-key">${escapeHtml(parts[0] || "")}</span><span class="ref-kv-value">${escapeHtml(parts[1] || "")}</span></div>`;
+      }).join("")}</div>`;
+    }
+
+    function nextMeetingHtml() {
+      return `
+        <div class="ref-kv-list">
+          <div class="ref-kv-row"><span class="ref-kv-key">Theme:</span><span class="ref-kv-value">${escapeHtml(state.nextTheme)}</span></div>
+          <div class="ref-kv-row"><span class="ref-kv-key">Time:</span><span class="ref-kv-value">${escapeHtml(state.nextMeetingTime)}</span></div>
+          <div class="ref-kv-row"><span class="ref-kv-key">Venue:</span><span class="ref-kv-value">${escapeHtml(state.nextVenue)}</span></div>
+        </div>
+      `;
+    }
+
+    function participationHtml(value) {
+      const defaults = ["Guest Intro", "Table Topics", "Reflection", "Sharing"];
+      const values = splitLines(String(value || "").replaceAll("|", "\n"));
+      const items = values.length >= 4 ? values.slice(0, 4) : defaults;
+      const icons = ["user", "circleStar", "speech", "pencil"];
+      return `
+        <div class="ref-participation-grid">
+          ${items.map((item, index) => `
+            <div class="ref-participation-item">
+              ${refIcon(icons[index] || "user", "ref-circle-icon")}
+              <span>${escapeHtml(item)}</span>
+            </div>
+          `).join("")}
+        </div>
+        <p class="ref-bottom-copy">No experience required.<br>First-timers are welcome.</p>
+      `;
+    }
+
+    function meetingRulesListHtml(value) {
+      const icons = ["phone", "users", "trash"];
+      const rules = splitLines(value).slice(0, 3).map((line, index) => `
+        <li class="ref-rule-item">
+          ${refIcon(icons[index] || "shield", "ref-rule-icon")}
+          <span>${escapeHtml(line.replace(/^\d+\)\s*/, ""))}</span>
+        </li>
+      `).join("");
+      return `<ul class="ref-meeting-rules">${rules}</ul>`;
+    }
+
+    function paragraphHtml(value) {
+      return splitLines(value).map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+    }
+
+    function ruleListHtml(value) {
+      const lines = splitLines(value);
+      if (!lines.length) return "";
+      return `<ol class="rule-list">${lines.map((line) => `<li>${escapeHtml(line.replace(/^\d+\)\s*/, ""))}</li>`).join("")}</ol>`;
+    }
+
+    function clubSummaryText(value) {
+      const lines = splitLines(value);
+      const cbdLine = lines.find((line) => line.includes("CBD stands for")) || "CBD: Confident, Brilliant, Dynamic.";
+      const meetingLine = lines.find((line) => line.includes("Friday")) || "Offline weekly on Friday evenings.";
+      return `${meetingLine} ${cbdLine}`;
+    }
+
+    function timingRulesHtml(value) {
+      const rows = splitLines(value).map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        const title = parts.shift() || "";
+        const getSignal = (name) => {
+          const part = parts.find((entry) => entry.toLowerCase().startsWith(name));
+          return part && part.includes(":") ? part.split(":").slice(1).join(":").trim() : "";
+        };
+        return `
+          <tr>
+            <td class="rule-name">${escapeHtml(title)}</td>
+            <td>${escapeHtml(getSignal("green"))}</td>
+            <td>${escapeHtml(getSignal("yellow"))}</td>
+            <td>${escapeHtml(getSignal("red"))}</td>
+            <td>${escapeHtml(getSignal("bell"))}</td>
+          </tr>
+        `;
+      }).join("");
+      return `
+        <table class="timing-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Green</th>
+              <th>Yellow</th>
+              <th>Red</th>
+              <th>Bell</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function officersHtml(value) {
+      return splitLines(value).map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        return `
+          <div class="officer-row">
+            <span class="officer-role">${escapeHtml(parts[0] || "")}</span>
+            <span class="officer-name">${escapeHtml(parts[1] || "")}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function keyValueListHtml(value) {
+      const rows = splitLines(value).map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        return `
+          <li>
+            <span class="compact-label">${escapeHtml(parts[0] || "")}</span>
+            <span>${escapeHtml(parts[1] || "")}</span>
+          </li>
+        `;
+      }).join("");
+      return `<ul class="compact-list">${rows}</ul>`;
+    }
+
+    function renderAll() {
+      renderInputs();
+      renderAgendaList();
+      renderPreview();
+      syncFormVisibility();
+    }
+
+    function syncFromInputs(event) {
+      const target = event.target;
+      if (target.dataset.meetingField) {
+        state[target.dataset.meetingField] = target.value;
+      }
+      if (target.dataset.field) {
+        state[target.dataset.field] = target.value;
+      }
+      saveData();
+      renderPreview();
+    }
+
+    function openForm(id) {
+      const item = state.items.find((entry) => entry.id === id);
+      if (!item) return;
+      editingId = item.id;
+      els.itemKind.value = item.kind;
+      els.itemTime.value = item.time || "";
+      els.itemTitle.value = item.title || "";
+      els.itemDuration.value = item.duration || "";
+      els.itemPerson.value = item.person || "";
+      els.itemDetail.value = item.detail || "";
+      syncFormVisibility();
+      renderAgendaList();
+    }
+
+    function clearForm(kind = "item") {
+      editingId = null;
+      els.itemKind.value = kind;
+      els.itemTime.value = "";
+      els.itemTitle.value = "";
+      els.itemDuration.value = "";
+      els.itemPerson.value = "";
+      els.itemDetail.value = "";
+      syncFormVisibility();
+      renderAgendaList();
+    }
+
+    function readForm() {
+      return normalizeItem({
+        id: editingId || newId(),
+        kind: els.itemKind.value,
+        time: els.itemTime.value,
+        title: els.itemTitle.value.trim(),
+        duration: els.itemDuration.value.trim(),
+        person: els.itemPerson.value.trim(),
+        detail: els.itemDetail.value.trim()
+      });
+    }
+
+    function saveForm(event) {
+      event.preventDefault();
+      const item = readForm();
+      if (!item.title) {
+        showToast("Program title is required");
+        return;
+      }
+      const index = state.items.findIndex((entry) => entry.id === item.id);
+      if (index >= 0) {
+        state.items[index] = item;
+      } else {
+        state.items.push(item);
+      }
+      editingId = item.id;
+      saveData();
+      renderAgendaList();
+      renderPreview();
+      showToast("Agenda item saved");
+    }
+
+    function syncAgendaDraftFromForm() {
+      if (!editingId) return;
+      const index = state.items.findIndex((entry) => entry.id === editingId);
+      if (index < 0) return;
+      state.items[index] = readForm();
+      saveData();
+      renderAgendaList();
+      renderPreview();
+    }
+
+    function deleteCurrentItem() {
+      if (!editingId) {
+        showToast("No item selected");
+        return;
+      }
+      const item = state.items.find((entry) => entry.id === editingId);
+      if (!item) return;
+      const confirmed = window.confirm(`Delete "${item.title || "Untitled"}"?`);
+      if (!confirmed) return;
+      state.items = state.items.filter((entry) => entry.id !== editingId);
+      clearForm();
+      saveData();
+      renderAll();
+      showToast("Item deleted");
+    }
+
+    function duplicateCurrentItem() {
+      if (!editingId) {
+        showToast("No item selected");
+        return;
+      }
+      const source = state.items.find((entry) => entry.id === editingId);
+      if (!source) return;
+      const cloneItem = { ...clone(source), id: newId(), title: `${source.title} Copy` };
+      const index = state.items.findIndex((entry) => entry.id === editingId);
+      state.items.splice(index + 1, 0, cloneItem);
+      saveData();
+      openForm(cloneItem.id);
+      renderPreview();
+      showToast("Item duplicated");
+    }
+
+    function clearDropMarkers() {
+      els.agendaList.querySelectorAll(".drop-before, .drop-after").forEach((card) => {
+        card.classList.remove("drop-before", "drop-after");
+      });
+    }
+
+    function reorderDraggedItem(targetId, insertAfter) {
+      if (!draggedId || draggedId === targetId) return false;
+      const fromIndex = state.items.findIndex((item) => item.id === draggedId);
+      if (fromIndex < 0) return false;
+      const [draggedItem] = state.items.splice(fromIndex, 1);
+      let targetIndex = state.items.findIndex((item) => item.id === targetId);
+      if (targetIndex < 0) {
+        state.items.splice(fromIndex, 0, draggedItem);
+        return false;
+      }
+      if (insertAfter) targetIndex += 1;
+      state.items.splice(targetIndex, 0, draggedItem);
+      saveData();
+      renderAgendaList();
+      renderPreview();
+      return true;
+    }
+
+    function getDropPosition(event, card) {
+      const rect = card.getBoundingClientRect();
+      return event.clientY > rect.top + rect.height / 2;
+    }
+
+    function handleAgendaDragStart(event) {
+      const card = event.target.closest(".agenda-card");
+      if (!card || event.target.closest("button")) return;
+      draggedId = card.dataset.id;
+      card.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", draggedId);
+    }
+
+    function handleAgendaDragOver(event) {
+      const card = event.target.closest(".agenda-card");
+      if (!draggedId || !card || card.dataset.id === draggedId) return;
+      event.preventDefault();
+      const insertAfter = getDropPosition(event, card);
+      clearDropMarkers();
+      card.classList.add(insertAfter ? "drop-after" : "drop-before");
+      event.dataTransfer.dropEffect = "move";
+    }
+
+    function handleAgendaDrop(event) {
+      const card = event.target.closest(".agenda-card");
+      if (!draggedId || !card) return;
+      event.preventDefault();
+      const moved = reorderDraggedItem(card.dataset.id, getDropPosition(event, card));
+      clearDropMarkers();
+      draggedId = null;
+      if (moved) showToast("Agenda order updated");
+    }
+
+    function handleAgendaDragEnd() {
+      els.agendaList.querySelectorAll(".dragging").forEach((card) => card.classList.remove("dragging"));
+      clearDropMarkers();
+      draggedId = null;
+    }
+
+    function rescheduleAgenda() {
+      let cursor = timeToMinutes(state.agendaStartTime || "19:00");
+      state.items = state.items.map((item) => {
+        if (item.kind === "section") return item;
+        const next = { ...item, time: minutesToTime(cursor) };
+        cursor += minutesFromDuration(item.duration);
+        return next;
+      });
+      saveData();
+      renderAll();
+      showToast("Agenda times recalculated");
+    }
+
+    function syncFormVisibility() {
+      const isSection = els.itemKind.value === "section";
+      els.itemTime.closest(".field").style.display = isSection ? "none" : "";
+      els.itemDuration.closest(".field").style.display = isSection ? "none" : "";
+      els.itemPerson.closest(".field").style.display = isSection ? "none" : "";
+      els.itemDetail.closest(".field").style.display = isSection ? "none" : "";
+    }
+
+    function copyText() {
+      const lines = [
+        state.clubName,
+        state.meetingTitle,
+        `${state.weekday}, ${formatDisplayDate()} | ${state.meetingTime}`,
+        `Theme: ${state.theme}`,
+        `Word of the Day: ${state.wordOfDay}`,
+        `Location: ${state.location}`,
+        `Local Address: ${state.localAddress}`,
+        `Meeting Manager: ${state.meetingManager}`,
+        `Toastmaster: ${state.toastmaster}`,
+        "",
+        "Agenda"
+      ];
+      for (const item of state.items) {
+        if (item.kind === "section") {
+          lines.push("", item.title);
+        } else {
+          const meta = [item.time, item.title, item.duration ? `${item.duration} min` : "", item.person].filter(Boolean).join(" | ");
+          lines.push(meta);
+          if (item.detail) lines.push(`  ${item.detail}`);
+        }
+      }
+      navigator.clipboard.writeText(lines.join("\n")).then(() => {
+        showToast("Text copied");
+      }).catch(() => {
+        showToast("Copy failed");
+      });
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `cbd-agenda-${state.meetingNumber || "draft"}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("JSON exported");
+    }
+
+    async function importJson(file) {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        state = normalizeData(JSON.parse(text));
+        editingId = null;
+        saveData();
+        renderAll();
+        showToast("JSON imported");
+      } catch (error) {
+        showToast("Import failed");
+      } finally {
+        els.importFile.value = "";
+      }
+    }
+
+    function handleQrUploadClick(event) {
+      const button = event.target.closest("[data-qr-upload]");
+      if (!button) return;
+      const fileInput = document.querySelector(`[data-qr-file="${CSS.escape(button.dataset.qrUpload)}"]`);
+      fileInput?.click();
+    }
+
+    async function handleQrUploadChange(event) {
+      const input = event.target.closest("[data-qr-file]");
+      if (!input) return;
+      const key = input.dataset.qrFile;
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        state[key] = await readFileAsDataUrl(file);
+        saveData();
+        renderAll();
+        showToast("QR image uploaded");
+      } catch (error) {
+        showToast("QR upload failed");
+      } finally {
+        input.value = "";
+      }
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.addEventListener("load", () => resolve(reader.result));
+        reader.addEventListener("error", () => reject(reader.error));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function resetDefaults() {
+      const confirmed = window.confirm("Reset the local draft to the CBD #441 defaults?");
+      if (!confirmed) return;
+      state = clone(DEFAULT_DATA);
+      editingId = null;
+      saveData();
+      renderAll();
+      showToast("Defaults restored");
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => els.toast.classList.remove("show"), 1700);
+    }
+
+    function bindEvents() {
+      document.addEventListener("input", syncFromInputs);
+      els.agendaForm.addEventListener("submit", saveForm);
+      els.agendaForm.addEventListener("input", syncAgendaDraftFromForm);
+      els.itemKind.addEventListener("change", () => {
+        syncFormVisibility();
+        syncAgendaDraftFromForm();
+      });
+      els.addItemBtn.addEventListener("click", () => clearForm("item"));
+      els.addSectionBtn.addEventListener("click", () => clearForm("section"));
+      els.clearFormBtn.addEventListener("click", () => clearForm());
+      els.deleteItemBtn.addEventListener("click", deleteCurrentItem);
+      els.duplicateItemBtn.addEventListener("click", duplicateCurrentItem);
+      els.rescheduleBtn.addEventListener("click", rescheduleAgenda);
+      els.printBtn.addEventListener("click", () => window.print());
+      els.copyBtn.addEventListener("click", copyText);
+      els.exportBtn.addEventListener("click", exportJson);
+      els.importBtn.addEventListener("click", () => els.importFile.click());
+      els.importFile.addEventListener("change", (event) => importJson(event.target.files[0]));
+      els.resetBtn.addEventListener("click", resetDefaults);
+      document.addEventListener("click", handleQrUploadClick);
+      document.addEventListener("change", handleQrUploadChange);
+      els.agendaList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const { action, id } = button.dataset;
+        if (action === "edit") openForm(id);
+      });
+      els.agendaList.addEventListener("dragstart", handleAgendaDragStart);
+      els.agendaList.addEventListener("dragover", handleAgendaDragOver);
+      els.agendaList.addEventListener("dragleave", (event) => {
+        if (!els.agendaList.contains(event.relatedTarget)) clearDropMarkers();
+      });
+      els.agendaList.addEventListener("drop", handleAgendaDrop);
+      els.agendaList.addEventListener("dragend", handleAgendaDragEnd);
+      window.addEventListener("resize", syncPreviewScale);
+    }
+
+    setupElements();
+    renderAll();
+    bindEvents();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+agenda_*.png
+agenda_reference_*.png
+.chrome-capture-profile/
+assets/excel/*
+!assets/excel/sheet1_image_4_950x1295.png
+!assets/excel/sheet1_image_5_950x1295.png
+!assets/excel/sheet1_image_8_300x300.png
+.DS_Store
+Thumbs.db
