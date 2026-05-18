@@ -1556,7 +1556,7 @@
     .ref-stage-content {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 4px;
+      gap: 5px;
       justify-items: center;
       align-content: center;
       text-align: center;
@@ -1576,14 +1576,16 @@
 
     .ref-stage-label {
       display: grid;
-      gap: 4px;
       justify-items: center;
+      min-height: 26px;
+      align-content: start;
     }
 
     .ref-stage-name {
       font-size: 8.8px;
       line-height: 1.1;
       text-transform: uppercase;
+      margin-top: 1px;
     }
 
     .ref-time-col {
@@ -2611,7 +2613,6 @@
                 <div class="ref-stage-content">
                   <span class="ref-stage-number">${groupIndex + 1}</span>
                   <span class="ref-stage-label">
-                    ${refIcon(meta.icon)}
                     <span class="ref-stage-name">${escapeHtml(meta.label)}</span>
                   </span>
                 </div>
