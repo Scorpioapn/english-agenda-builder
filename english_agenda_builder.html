@@ -50,6 +50,8 @@
       --radius: 8px;
       --page-width: 210mm;
       --page-height: 297mm;
+      --ref-side-col: 68mm;
+      --ref-grid-gap: 3mm;
       font-family: "Gotham", "Montserrat", "Aptos", "Segoe UI", Arial, sans-serif;
     }
 
@@ -1220,8 +1222,8 @@
 
     .ref-body {
       display: grid;
-      grid-template-columns: 68mm minmax(0, 1fr);
-      gap: 3mm;
+      grid-template-columns: var(--ref-side-col) minmax(0, 1fr);
+      gap: var(--ref-grid-gap);
       align-items: stretch;
       min-height: 0;
     }
@@ -1653,8 +1655,8 @@
 
     .ref-bottom-grid {
       display: grid;
-      grid-template-columns: 1fr 0.95fr 1fr;
-      gap: 3.2mm;
+      grid-template-columns: var(--ref-side-col) minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--ref-grid-gap);
     }
 
     .ref-bottom-card {
