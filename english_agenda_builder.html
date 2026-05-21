@@ -1593,8 +1593,10 @@
 
     .ref-officer-term {
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr);
-      gap: 5px;
+      width: min(100%, 206px);
+      grid-template-columns: 64px minmax(0, 138px);
+      gap: 7px;
+      margin-inline: auto;
       padding-bottom: 3px;
       border-bottom: 1px solid #e7ecea;
       font-size: 6.8px;
@@ -1609,8 +1611,10 @@
 
     .ref-officer-row {
       display: grid;
-      grid-template-columns: 58px minmax(0, 1fr);
-      gap: 5px;
+      width: min(100%, 206px);
+      grid-template-columns: 64px minmax(0, 138px);
+      gap: 7px;
+      margin-inline: auto;
       align-items: baseline;
       font-size: 7.05px;
       line-height: 1.13;
@@ -2434,6 +2438,8 @@
 
   <script>
     const STORAGE_KEY = "cbd_english_agenda_builder_v2";
+    const LEGACY_BELL_TEXT = "30\" later, timer will ring the bell";
+    const CURRENT_BELL_TEXT = "30s after time is up";
 
     const DEFAULT_DATA = {
       clubName: "CBD Toastmasters Club",
@@ -2478,9 +2484,9 @@
         "SAA | Lisa Yang"
       ].join("\n"),
       timingRules: [
-        "Less/equal 2min | Speech length: Table topic speakers, facilitators' introductions | Green Card: 1 minute left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell",
-        "Less/equal 3 min | Speech length: Individual Evaluation, Facilitators' Report | Green Card: 2 minutes left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell",
-        "Less/equal 7 min, and other sessions more than 7mins | Speech length: Prepared Speech, Table Topic Evaluation, General Evaluation, Workshops | Green Card: 2 minutes left | Yellow Card: 1 minutes left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell"
+        `Less/equal 2min | Speech length: Table topic speakers, facilitators' introductions | Green Card: 1 minute left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: ${CURRENT_BELL_TEXT}`,
+        `Less/equal 3 min | Speech length: Individual Evaluation, Facilitators' Report | Green Card: 2 minutes left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: ${CURRENT_BELL_TEXT}`,
+        `Less/equal 7 min, and other sessions more than 7mins | Speech length: Prepared Speech, Table Topic Evaluation, General Evaluation, Workshops | Green Card: 2 minutes left | Yellow Card: 1 minutes left | Red Card: TIME IS UP | Bell: ${CURRENT_BELL_TEXT}`
       ].join("\n"),
       meetingRules: [
         "Please turn off your phone or switch it to silent mode during the meeting.",
@@ -2633,11 +2639,20 @@
       if (/[\u4e00-\u9fff]/.test(String(normalized.localAddress || ""))) {
         normalized.localAddress = DEFAULT_DATA.localAddress;
       }
+      normalized.timingRules = normalizeTimingRules(normalized.timingRules);
       if (isLegacyTimingRules(normalized.timingRules)) {
         normalized.timingRules = DEFAULT_DATA.timingRules;
       }
+      normalized.timingRules = normalizeTimingRules(normalized.timingRules);
       normalized.items = Array.isArray(data.items) ? data.items.map(normalizeItem) : clone(DEFAULT_DATA.items);
       return normalized;
+    }
+
+    function normalizeTimingRules(value) {
+      return String(value || "")
+        .replaceAll(LEGACY_BELL_TEXT, CURRENT_BELL_TEXT)
+        .replace(/30"\s*later,?\s*timer\s+will\s+ring\s+the\s+bell/gi, CURRENT_BELL_TEXT)
+        .replace(/30\s*seconds?\s+later,?\s*timer\s+will\s+ring\s+the\s+bell/gi, CURRENT_BELL_TEXT);
     }
 
     function isLegacyTimingRules(value) {
@@ -2645,8 +2660,8 @@
       return !text.trim()
         || (text.includes("Less than or equal to 2 minutes") && text.includes("Bell:"))
         || (text.includes("Less than or equal to 3 minutes") && text.includes("Bell:"))
-        || (text.includes("Less/equal 2 min") && !text.includes("timer will ring the bell"))
-        || (text.includes("Less/equal 2min") && !text.includes("timer will ring the bell"));
+        || (text.includes("Less/equal 2 min") && !text.includes(CURRENT_BELL_TEXT))
+        || (text.includes("Less/equal 2min") && !text.includes(CURRENT_BELL_TEXT));
     }
 
     function normalizeItem(item) {
@@ -3170,10 +3185,10 @@
     }
 
     function shortSignalText(value) {
-      return String(value || "")
-        .replace(/time is up/gi, "TIME IS UP")
+      const text = normalizeTimingRules(value)
         .replace(/\s+/g, " ")
         .trim();
+      return /^time is up$/i.test(text) ? "TIME IS UP" : text;
     }
 
     function qrCardHtml(src, label) {
