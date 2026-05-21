@@ -1301,8 +1301,8 @@
 
     .ref-sidebar {
       display: grid;
-      grid-template-rows: auto auto auto minmax(0, 1fr);
-      gap: 2.4mm;
+      grid-template-rows: 45mm 74.5mm 31mm minmax(38mm, 1fr);
+      gap: 1.6mm;
       align-content: stretch;
       height: 100%;
       min-height: 0;
@@ -1350,18 +1350,22 @@
       border-color: #fff;
     }
 
-    .ref-card:last-child {
+    .ref-card:nth-child(3) .ref-card-body {
+      padding: 6px 8px 7px;
+    }
+
+    .ref-card.ref-officers-card {
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       min-height: 0;
     }
 
     .ref-card-body {
-      padding: 8px 10px 10px;
-      font-size: 8.8px;
+      padding: 7px 9px 8px;
+      font-size: 8.6px;
       line-height: 1.26;
       display: grid;
-      gap: 4px;
+      gap: 3px;
     }
 
     .ref-about-line {
@@ -1412,46 +1416,48 @@
 
     .ref-timing-stack {
       display: grid;
-      gap: 5px;
+      gap: 3px;
+      padding: 6px 8px 7px;
     }
 
     .ref-timing-card {
       border: 0;
       border-radius: 0;
       border-top: 1px solid #e1e3e2;
-      padding: 6px 0 7px;
+      padding: 3px 0 4px;
       display: grid;
-      gap: 4px;
+      gap: 2px;
       background: #fff;
     }
 
     .ref-timing-card h4 {
       margin: 0;
       color: var(--tm-maroon);
-      font-size: 8.4px;
-      line-height: 1.1;
+      font-size: 7.2px;
+      line-height: 1.06;
       text-transform: uppercase;
     }
 
     .ref-timing-scope {
-      margin: -1px 0 1px;
+      margin: 0;
       color: #202733;
-      font-size: 6.5px;
-      line-height: 1.18;
+      font-size: 5.6px;
+      line-height: 1.12;
       font-weight: 760;
     }
 
     .ref-signal-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 2px 5px;
+      gap: 1px 4px;
     }
 
     .ref-signal-row {
       display: grid;
-      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-columns: 45px minmax(0, 1fr);
       gap: 3px;
-      font-size: 6.5px;
+      font-size: 5.6px;
+      line-height: 1.12;
       align-items: center;
     }
 
@@ -1490,12 +1496,13 @@
       border: 1px solid #f5d8a7;
       background: #fff7e6;
       border-radius: 7px;
-      padding: 5px;
+      padding: 3px;
       display: grid;
-      grid-template-columns: 16px minmax(0, 1fr);
-      gap: 6px;
+      grid-template-columns: 14px minmax(0, 1fr);
+      gap: 4px;
       color: #2b2417;
-      font-size: 7.3px;
+      font-size: 6px;
+      line-height: 1.18;
     }
 
     .ref-note .ref-line-icon {
@@ -1505,16 +1512,16 @@
     .ref-qr-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px;
+      gap: 4px;
       text-align: center;
     }
 
     .ref-qr-box {
       border: 1px solid #e6e9e9;
       border-radius: 7px;
-      padding: 5px;
+      padding: 3px;
       display: grid;
-      gap: 4px;
+      gap: 2px;
       justify-items: center;
       background: #fff;
       font-weight: 850;
@@ -1522,8 +1529,8 @@
     }
 
     .ref-qr-box img {
-      width: 55px;
-      height: 55px;
+      width: 42px;
+      height: 42px;
       object-fit: cover;
       border-radius: 3px;
     }
@@ -1554,6 +1561,57 @@
 
     .ref-kv-value {
       text-align: right;
+    }
+
+    .ref-officers-body {
+      min-height: 0;
+      align-content: start;
+      gap: 4px;
+      padding: 6px 8px 7px;
+    }
+
+    .ref-officer-term {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 5px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #e7ecea;
+      font-size: 6.7px;
+      line-height: 1.12;
+    }
+
+    .ref-officer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px 8px;
+    }
+
+    .ref-officer-row {
+      display: grid;
+      grid-template-columns: minmax(38px, 0.9fr) minmax(0, 1fr);
+      gap: 4px;
+      align-items: baseline;
+      font-size: 6.9px;
+      line-height: 1.16;
+      min-width: 0;
+    }
+
+    .ref-officer-role,
+    .ref-officer-term-key {
+      color: #092968;
+      font-weight: 900;
+    }
+
+    .ref-officer-name,
+    .ref-officer-term-value {
+      min-width: 0;
+      color: #071632;
+      font-weight: 760;
+      text-align: right;
+    }
+
+    .ref-officer-term-value {
+      text-align: left;
     }
 
     .ref-flow-card {
@@ -2907,9 +2965,9 @@
               </div>
             </section>
 
-            <section class="ref-card">
+            <section class="ref-card ref-officers-card">
               <h3 class="ref-card-title">${refIcon("users")}Club Officers</h3>
-              <div class="ref-card-body">${kvRowsHtml(state.officers)}</div>
+              <div class="ref-card-body ref-officers-body">${officersPreviewHtml(state.officers)}</div>
             </section>
 
           </aside>
@@ -3093,6 +3151,31 @@
         }
         return `<div class="ref-kv-row"><span class="ref-kv-key">${escapeHtml(parts[0] || "")}</span><span class="ref-kv-value">${escapeHtml(parts[1] || "")}</span></div>`;
       }).join("")}</div>`;
+    }
+
+    function officersPreviewHtml(value) {
+      const rows = splitLines(value).map((line) => {
+        const [key = "", ...valueParts] = line.split("|").map((part) => part.trim());
+        return { key, value: valueParts.join(" | ") };
+      }).filter((row) => row.key || row.value);
+      const term = rows.find((row) => row.key.toLowerCase() === "term");
+      const officers = rows.filter((row) => row.key.toLowerCase() !== "term");
+      return `
+        ${term ? `
+          <div class="ref-officer-term">
+            <span class="ref-officer-term-key">${escapeHtml(term.key)}:</span>
+            <span class="ref-officer-term-value">${escapeHtml(term.value)}</span>
+          </div>
+        ` : ""}
+        <div class="ref-officer-grid">
+          ${officers.map((row) => `
+            <div class="ref-officer-row">
+              <span class="ref-officer-role">${escapeHtml(row.key)}</span>
+              <span class="ref-officer-name">${escapeHtml(row.value)}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
     }
 
     function nextMeetingHtml() {
