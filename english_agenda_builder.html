@@ -348,6 +348,31 @@
       gap: 10px;
     }
 
+    .stacked-fields {
+      display: grid;
+      gap: 8px;
+    }
+
+    .auto-time-field {
+      display: grid;
+      grid-template-columns: auto 118px;
+      gap: 8px;
+      align-items: center;
+      margin-left: 2px;
+    }
+
+    .auto-time-field label {
+      color: var(--md-on-surface-variant);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .auto-time-field .input {
+      min-height: 36px;
+      padding-block: 7px;
+      font-size: 13px;
+    }
+
     .qr-thumb-button {
       display: grid;
       place-items: center;
@@ -407,7 +432,7 @@
       overflow-y: hidden;
     }
 
-    #meetingFields .field-readable {
+    .field-grid .field-readable {
       grid-column: 1 / -1;
     }
 
@@ -1445,7 +1470,7 @@
     .ref-timing-card h4 {
       margin: 0;
       color: var(--tm-maroon);
-      font-size: 8.45px;
+      font-size: 8.65px;
       line-height: 1.1;
       text-transform: uppercase;
     }
@@ -1453,8 +1478,8 @@
     .ref-timing-scope {
       margin: 0;
       color: #202733;
-      font-size: 7px;
-      line-height: 1.18;
+      font-size: 7.25px;
+      line-height: 1.16;
       font-weight: 760;
     }
 
@@ -1468,8 +1493,8 @@
       display: grid;
       grid-template-columns: 50px minmax(0, 1fr);
       gap: 3px;
-      font-size: 6.8px;
-      line-height: 1.16;
+      font-size: 7.05px;
+      line-height: 1.14;
       align-items: center;
     }
 
@@ -1528,8 +1553,8 @@
       grid-template-columns: 14px minmax(0, 1fr);
       gap: 4px;
       color: #2b2417;
-      font-size: 7px;
-      line-height: 1.2;
+      font-size: 7.25px;
+      line-height: 1.18;
     }
 
     .ref-note .ref-line-icon {
@@ -1553,7 +1578,7 @@
       background: #fff;
       font-weight: 850;
       color: #071632;
-      font-size: 7.3px;
+      font-size: 7.55px;
       line-height: 1.1;
     }
 
@@ -1596,18 +1621,19 @@
       min-height: 0;
       align-content: start;
       gap: 0;
-      padding: 5px 8px 6px;
+      padding: 4px 8px 5px;
     }
 
     .ref-officer-term {
       display: grid;
       width: 100%;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      padding-bottom: 3px;
+      grid-template-columns: minmax(58px, 0.72fr) minmax(0, 1.28fr);
+      gap: 10px;
+      align-items: baseline;
+      padding: 2px 0 4px;
       border-bottom: 1px solid #e7ecea;
-      font-size: 5.75px;
-      line-height: 1.12;
+      font-size: 9.1px;
+      line-height: 1.08;
     }
 
     .ref-officer-grid {
@@ -1622,11 +1648,11 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       align-items: baseline;
-      font-size: 7.05px;
-      line-height: 1.13;
+      font-size: 8.05px;
+      line-height: 1.08;
       min-width: 0;
       border-top: 1px solid #e7ecea;
-      padding: 1px 0;
+      padding: 0.5px 0;
     }
 
     .ref-officer-role,
@@ -1645,7 +1671,9 @@
 
     .ref-officer-term-value {
       text-align: left;
-      white-space: nowrap;
+      font-weight: 900;
+      white-space: normal;
+      overflow-wrap: normal;
     }
 
     .ref-flow-card {
@@ -1819,7 +1847,7 @@
       overflow: hidden;
       margin-top: 1px;
       color: #46556a;
-      font-size: 5.8px;
+      font-size: 6.25px;
       line-height: 1.08;
       font-weight: 680;
     }
@@ -1897,7 +1925,7 @@
       justify-items: center;
       gap: 5px;
       color: #092e68;
-      font-size: 7.5px;
+      font-size: 7.75px;
       font-weight: 900;
     }
 
@@ -1946,7 +1974,7 @@
       display: grid;
       justify-items: center;
       gap: 4px;
-      font-size: 8.2px;
+      font-size: 8.45px;
       color: #0c1e40;
     }
 
@@ -1971,13 +1999,13 @@
       justify-content: center;
       gap: 9px;
       color: #061b3d;
-      font-size: 7.8px;
+      font-size: 8.05px;
       font-weight: 850;
     }
 
     .ref-vote-note {
       color: #137a3b;
-      font-size: 8.2px;
+      font-size: 8.45px;
       font-weight: 850;
     }
 
@@ -1987,8 +2015,8 @@
       list-style: none;
       display: grid;
       gap: 6px;
-      font-size: 8.4px;
-      line-height: 1.16;
+      font-size: 8.65px;
+      line-height: 1.14;
       color: #092968;
       font-weight: 760;
     }
@@ -2454,6 +2482,10 @@
               <div class="action-row">
                 <button class="btn primary" id="addItemBtn" type="button">Add Item</button>
                 <button class="btn" id="addSectionBtn" type="button">Add Section</button>
+                <div class="auto-time-field">
+                  <label for="autoTimeStart">Auto Time Start</label>
+                  <input class="input" id="autoTimeStart" type="time" data-meeting-field="agendaStartTime" />
+                </div>
                 <button class="btn" id="rescheduleBtn" type="button">Auto Time</button>
               </div>
               <button class="btn ghost" id="clearFormBtn" type="button">Clear Form</button>
@@ -2490,7 +2522,7 @@
                   </div>
                 </div>
                 <div class="action-row">
-                  <button class="btn primary" id="saveItemBtn" type="submit">Save Item</button>
+                  <button class="btn primary" id="saveItemBtn" type="submit">Done</button>
                   <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
                   <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
                 </div>
@@ -2504,7 +2536,7 @@
           <summary>Club Details</summary>
           <div class="section-body">
             <div class="field">
-              <label for="aboutClub">About CBD Toastmasters</label>
+              <label for="aboutClub">About Intro</label>
               <textarea class="textarea" id="aboutClub" data-field="aboutClub"></textarea>
             </div>
             <div class="field">
@@ -2512,16 +2544,23 @@
               <textarea class="textarea" id="officers" data-field="officers"></textarea>
             </div>
             <div class="field">
-              <label for="roleAssignments">Meeting Role Assignments</label>
-              <textarea class="textarea" id="roleAssignments" data-field="roleAssignments"></textarea>
-            </div>
-            <div class="field">
               <label for="timingRules">Timing Rules</label>
               <textarea class="textarea" id="timingRules" data-field="timingRules"></textarea>
             </div>
             <div class="field">
-              <label for="meetingRules">Meeting Rules</label>
-              <textarea class="textarea" id="meetingRules" data-field="meetingRules"></textarea>
+              <label>Meeting Rules</label>
+              <div class="stacked-fields" id="meetingRuleFields"></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="editor-section">
+          <summary>Preview Text</summary>
+          <div class="section-body">
+            <div class="field-grid" id="previewTextFields"></div>
+            <div class="field">
+              <label>Guest Participation Tags</label>
+              <div class="stacked-fields" id="guestParticipationFields"></div>
             </div>
           </div>
         </details>
@@ -2567,18 +2606,36 @@
       nextTheme: "Summer Outfits",
       nextMeetingTime: "Next Friday, 19:30-21:30",
       nextVenue: "Hall M3, 7B2, Tianji Building, Tian'an Cyber Park",
-      guestParticipation: "Guest Intro | Table Topics | Reflection Sharing",
+      guestParticipation: "Guest Intro | Table Topics | Reflection | Sharing",
       liveVotingTitle: "Scan at 21:00",
       liveVotingNote: "Best Speaker | Best Evaluator | Best Table Topic",
       officialQrSrc: "assets/excel/sheet1_image_4_950x1295.png",
       membershipQrSrc: "assets/excel/sheet1_image_5_950x1295.png",
       votingQrSrc: "assets/excel/sheet1_image_8_300x300.png",
+      agendaTitle: "Meeting Agenda",
+      themeLabel: "Theme",
+      wordOfDayLabel: "Word of the Day",
+      dateLabel: "Date",
+      timeLabel: "Time",
+      meetingNoLabel: "Meeting No.",
+      aboutTitle: "About Us",
+      timingTitle: "Timing Signals",
+      followTitle: "Follow Us",
+      officerTitle: "Club Officer",
+      flowTitle: "Meeting Flow",
+      guestParticipationTitle: "Guest Participation",
+      liveVotingCardTitle: "Live Voting",
+      meetingRulesTitle: "Meeting Rules",
+      officialQrLabel: "Official Account",
+      membershipQrLabel: "Membership Inquiry",
+      timingNote: "Applause is a sign of respect. Please watch the timing signals and wrap up quickly.",
+      guestParticipationFooter: "No experience required.\nFirst-timers are welcome.",
+      liveVotingFooter: "Please vote after all sessions are completed.",
+      footerSlogan: "Where Leaders Are Made",
+      footerBrand: "Toastmasters International",
       aboutClub: [
         "CBD Toastmasters Club is based in Futian and belongs to District 118, Division I, Area I1.",
-        "Founded on June 1, 2017, with 40+ active members in Shenzhen.",
-        "Offline weekly on Friday evenings, 19:30-21:30.",
-        "Slogan: We learn hard, we play harder.",
-        "CBD stands for Confident, Brilliant, Dynamic."
+        "Founded on June 1, 2017, with 40+ active members in Shenzhen."
       ].join("\n"),
       officers: [
         "Term | The 18th Officer Team (2026.1-2026.6)",
@@ -2654,19 +2711,10 @@
       ["date", "Date", "date"],
       ["weekday", "Weekday", "text"],
       ["meetingTime", "Meeting Time", "text"],
-      ["agendaStartTime", "Agenda Start", "time"],
-      ["meetingManager", "Meeting Manager", "text"],
-      ["toastmaster", "Toastmaster", "text"],
       ["theme", "Theme", "text"],
       ["wordOfDay", "Word of the Day", "text"],
       ["location", "Location", "textarea"],
-      ["localAddress", "Local Address", "textarea"],
       ["meetingVision", "Meeting Vision", "textarea"],
-      ["joinUs", "Join Us Note", "textarea"],
-      ["nextTheme", "Next Meeting Theme", "text"],
-      ["nextMeetingTime", "Next Meeting Time", "text"],
-      ["nextVenue", "Next Meeting Venue", "textarea"],
-      ["guestParticipation", "Guest Participation Tags", "textarea"],
       ["liveVotingTitle", "Live Voting Title", "text"],
       ["liveVotingNote", "Live Voting Note", "textarea"],
       ["officialQrSrc", "Official QR Image", "image"],
@@ -2674,15 +2722,34 @@
       ["votingQrSrc", "Voting QR Image", "image"]
     ];
 
+    const previewTextFieldDefs = [
+      ["agendaTitle", "A4 Title", "text"],
+      ["themeLabel", "Theme Label", "text"],
+      ["wordOfDayLabel", "Word Label", "text"],
+      ["dateLabel", "Date Label", "text"],
+      ["timeLabel", "Time Label", "text"],
+      ["meetingNoLabel", "Meeting No. Label", "text"],
+      ["aboutTitle", "About Card Title", "text"],
+      ["timingTitle", "Timing Card Title", "text"],
+      ["followTitle", "Follow Card Title", "text"],
+      ["officerTitle", "Officer Card Title", "text"],
+      ["flowTitle", "Flow Card Title", "text"],
+      ["guestParticipationTitle", "Guest Card Title", "text"],
+      ["liveVotingCardTitle", "Voting Card Title", "text"],
+      ["meetingRulesTitle", "Rules Card Title", "text"],
+      ["officialQrLabel", "Official QR Label", "text"],
+      ["membershipQrLabel", "Membership QR Label", "text"],
+      ["timingNote", "Timing Note", "textarea"],
+      ["guestParticipationFooter", "Guest Participation Footer", "textarea"],
+      ["liveVotingFooter", "Live Voting Footer", "text"],
+      ["footerSlogan", "Footer Slogan", "text"],
+      ["footerBrand", "Footer Brand", "text"]
+    ];
+
     const readableMeetingFields = new Set([
       "clubName",
       "meetingTitle",
       "theme",
-      "meetingManager",
-      "toastmaster",
-      "nextMeetingTime",
-      "nextVenue",
-      "guestParticipation",
       "liveVotingTitle",
       "liveVotingNote"
     ]);
@@ -2740,12 +2807,17 @@
       if (String(normalized.officers || "").includes("Vice President Education")) {
         normalized.officers = DEFAULT_DATA.officers;
       }
-      if (String(normalized.aboutClub || "").includes("one of Shenzhen's most active")) {
+      if (String(normalized.aboutClub || "").includes("one of Shenzhen's most active")
+        || String(normalized.aboutClub || "").includes("CBD stands for Confident")) {
         normalized.aboutClub = DEFAULT_DATA.aboutClub;
       }
       if (/[\u4e00-\u9fff]/.test(String(normalized.localAddress || ""))) {
         normalized.localAddress = DEFAULT_DATA.localAddress;
       }
+      if (String(normalized.guestParticipation || "").includes("Reflection Sharing")) {
+        normalized.guestParticipation = DEFAULT_DATA.guestParticipation;
+      }
+      normalized.meetingRules = listFieldValues(normalized.meetingRules, 3).join("\n");
       normalized.timingRules = normalizeTimingRules(normalized.timingRules);
       if (isLegacyTimingRules(normalized.timingRules)) {
         normalized.timingRules = DEFAULT_DATA.timingRules;
@@ -2894,6 +2966,7 @@
         saveItemBtn: $("#saveItemBtn"),
         duplicateItemBtn: $("#duplicateItemBtn"),
         deleteItemBtn: $("#deleteItemBtn"),
+        autoTimeStart: $("#autoTimeStart"),
         clearFormBtn: $("#clearFormBtn"),
         rescheduleBtn: $("#rescheduleBtn"),
         printBtn: $("#printBtn"),
@@ -2904,9 +2977,10 @@
         importFile: $("#importFile"),
         aboutClub: $("#aboutClub"),
         officers: $("#officers"),
-        roleAssignments: $("#roleAssignments"),
+        previewTextFields: $("#previewTextFields"),
+        meetingRuleFields: $("#meetingRuleFields"),
+        guestParticipationFields: $("#guestParticipationFields"),
         timingRules: $("#timingRules"),
-        meetingRules: $("#meetingRules"),
         previewStage: $("#previewStage"),
         previewSheet: $("#previewSheet"),
         printPage: $("#printPage"),
@@ -2916,10 +2990,9 @@
       });
     }
 
-    function renderInputs() {
-      els.meetingFields.innerHTML = meetingFieldDefs.map(([key, label, type]) => {
+    function fieldControlHtml([key, label, type], options = {}) {
         const value = escapeHtml(state[key] || "");
-        const fieldClass = `field${type === "textarea" || type === "image" || readableMeetingFields.has(key) ? " field-readable" : ""}`;
+        const fieldClass = `field${type === "textarea" || type === "image" || options.readable?.has(key) ? " field-readable" : ""}`;
         if (type === "image") {
           return `
             <div class="${fieldClass} qr-upload-field">
@@ -2947,9 +3020,39 @@
             <input class="input" id="field-${key}" data-meeting-field="${key}" type="${type}" value="${value}" />
           </div>
         `;
-      }).join("");
+    }
 
-      for (const field of [els.aboutClub, els.officers, els.roleAssignments, els.timingRules, els.meetingRules]) {
+    function listFieldValues(value, count, separator = "line") {
+      const parts = separator === "pipe"
+        ? String(value || "").split("|")
+        : String(value || "").split(/\r?\n/);
+      return Array.from({ length: count }, (_, index) => (parts[index] || "").trim());
+    }
+
+    function listFieldHtml(field, labels, separator = "line") {
+      const values = listFieldValues(state[field], labels.length, separator);
+      return labels.map((label, index) => `
+        <div class="field">
+          <label for="${field}-${index}">${label}</label>
+          <input class="input" id="${field}-${index}" data-list-field="${field}" data-list-separator="${separator}" value="${escapeHtml(values[index])}" />
+        </div>
+      `).join("");
+    }
+
+    function renderInputs() {
+      els.meetingFields.innerHTML = meetingFieldDefs
+        .map((definition) => fieldControlHtml(definition, { readable: readableMeetingFields }))
+        .join("");
+
+      els.previewTextFields.innerHTML = previewTextFieldDefs
+        .map((definition) => fieldControlHtml(definition))
+        .join("");
+
+      els.meetingRuleFields.innerHTML = listFieldHtml("meetingRules", ["Rule 1", "Rule 2", "Rule 3"]);
+      els.guestParticipationFields.innerHTML = listFieldHtml("guestParticipation", ["Guest Intro", "Table Topics", "Reflection", "Sharing"], "pipe");
+      els.autoTimeStart.value = state.agendaStartTime || "";
+
+      for (const field of [els.aboutClub, els.officers, els.timingRules]) {
         field.value = state[field.dataset.field] || "";
       }
     }
@@ -3089,57 +3192,57 @@
           </div>
           <div class="ref-title">
             <p class="ref-title-kicker">${escapeHtml(state.clubName)}</p>
-            <h2>Meeting Agenda</h2>
+            <h2>${escapeHtml(state.agendaTitle)}</h2>
             <div class="ref-theme-strip">
-              <span class="ref-tag ref-tag-red">Theme</span>
+              <span class="ref-tag ref-tag-red">${escapeHtml(state.themeLabel)}</span>
               <span class="ref-topic">${escapeHtml(state.theme)}</span>
-              <span class="ref-tag ref-tag-blue">Word of the Day</span>
+              <span class="ref-tag ref-tag-blue">${escapeHtml(state.wordOfDayLabel)}</span>
               <span class="ref-word">${escapeHtml(state.wordOfDay)}</span>
             </div>
           </div>
           <div class="ref-meta-stack">
-            <div class="ref-meta-pill">${refIcon("calendar", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Date</span><span class="ref-meta-value">${escapeHtml(formatLongDate())}</span></span></div>
-            <div class="ref-meta-pill">${refIcon("clock", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Time</span><span class="ref-meta-value">${escapeHtml(state.meetingTime)}</span></span></div>
-            <div class="ref-meta-pill">${refIcon("users", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">Meeting No.</span><span class="ref-meta-value">${escapeHtml(state.meetingNumber)}</span></span></div>
+            <div class="ref-meta-pill">${refIcon("calendar", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">${escapeHtml(state.dateLabel)}</span><span class="ref-meta-value">${escapeHtml(formatLongDate())}</span></span></div>
+            <div class="ref-meta-pill">${refIcon("clock", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">${escapeHtml(state.timeLabel)}</span><span class="ref-meta-value">${escapeHtml(state.meetingTime)}</span></span></div>
+            <div class="ref-meta-pill">${refIcon("users", "ref-meta-icon")}<span class="ref-meta-copy"><span class="ref-meta-label">${escapeHtml(state.meetingNoLabel)}</span><span class="ref-meta-value">${escapeHtml(state.meetingNumber)}</span></span></div>
           </div>
         </header>
 
         <section class="ref-body">
           <aside class="ref-sidebar">
             <section class="ref-card">
-              <h3 class="ref-card-title">${refIcon("info")}About Us</h3>
+              <h3 class="ref-card-title">${refIcon("info")}${escapeHtml(state.aboutTitle)}</h3>
               <div class="ref-card-body">
                 ${aboutUsHtml()}
               </div>
             </section>
 
             <section class="ref-card">
-              <h3 class="ref-card-title">${refIcon("stopwatch")}Timing Signals</h3>
+              <h3 class="ref-card-title">${refIcon("stopwatch")}${escapeHtml(state.timingTitle)}</h3>
               <div class="ref-card-body ref-timing-stack">
                 ${timingSignalCardsHtml(state.timingRules)}
-                <div class="ref-note">${refIcon("star", "ref-line-icon")}<span>Applause is a sign of respect. Please watch the timing signals and wrap up quickly.</span></div>
+                <div class="ref-note">${refIcon("star", "ref-line-icon")}<span>${escapeHtml(state.timingNote)}</span></div>
               </div>
             </section>
 
             <section class="ref-card">
-              <h3 class="ref-card-title">${refIcon("qr")}Follow Us</h3>
+              <h3 class="ref-card-title">${refIcon("qr")}${escapeHtml(state.followTitle)}</h3>
               <div class="ref-card-body">
                 <div class="ref-qr-grid">
-                  ${qrCardHtml(officialQr, "Official Account")}
-                  ${qrCardHtml(membershipQr, "Membership Inquiry")}
+                  ${qrCardHtml(officialQr, state.officialQrLabel)}
+                  ${qrCardHtml(membershipQr, state.membershipQrLabel)}
                 </div>
               </div>
             </section>
 
             <section class="ref-card ref-officers-card">
-              <h3 class="ref-card-title">${refIcon("users")}Club Officer</h3>
+              <h3 class="ref-card-title">${refIcon("users")}${escapeHtml(state.officerTitle)}</h3>
               <div class="ref-card-body ref-officers-body">${officersPreviewHtml(state.officers)}</div>
             </section>
 
           </aside>
 
           <section class="ref-flow-card">
-            <h3 class="ref-flow-title">${refIcon("list")}Meeting Flow</h3>
+            <h3 class="ref-flow-title">${refIcon("list")}${escapeHtml(state.flowTitle)}</h3>
             <div class="ref-table-wrap">
               <table class="ref-agenda-table">
                 <colgroup>
@@ -3167,28 +3270,28 @@
 
         <footer class="ref-bottom-grid">
           <section class="ref-bottom-card">
-            <h3 class="ref-bottom-title">${refIcon("users")}Guest Participation</h3>
+            <h3 class="ref-bottom-title">${refIcon("users")}${escapeHtml(state.guestParticipationTitle)}</h3>
             ${participationHtml(state.guestParticipation)}
           </section>
           <section class="ref-bottom-card">
-            <h3 class="ref-bottom-title">${refIcon("bars")}Live Voting</h3>
+            <h3 class="ref-bottom-title">${refIcon("bars")}${escapeHtml(state.liveVotingCardTitle)}</h3>
             <div class="ref-live-vote">
               <strong class="ref-scan-time">${escapeHtml(state.liveVotingTitle)}</strong>
               <div class="ref-vote-awards">${escapeHtml(state.liveVotingNote).split("|").map((part) => `<span>${part.trim()}</span>`).join("<span>|</span>")}</div>
               <img src="${escapeHtml(votingQr)}" alt="Live voting QR" />
-              <span class="ref-vote-note">Please vote after all sessions are completed.</span>
+              <span class="ref-vote-note">${escapeHtml(state.liveVotingFooter)}</span>
             </div>
           </section>
           <section class="ref-bottom-card">
-            <h3 class="ref-bottom-title">${refIcon("shield")}Meeting Rules</h3>
+            <h3 class="ref-bottom-title">${refIcon("shield")}${escapeHtml(state.meetingRulesTitle)}</h3>
             ${meetingRulesListHtml(state.meetingRules)}
           </section>
         </footer>
         <footer class="ref-footer">
           <span class="ref-footer-line"></span>
-          <span>Where Leaders Are Made</span>
+          <span>${escapeHtml(state.footerSlogan)}</span>
           <span class="ref-footer-heart">${refIcon("heart", "ref-mini-icon")}</span>
-          <span>Toastmasters International</span>
+          <span>${escapeHtml(state.footerBrand)}</span>
           <span class="ref-footer-line"></span>
         </footer>
       `;
@@ -3252,8 +3355,8 @@
 
     function aboutUsHtml() {
       const lines = splitLines(state.aboutClub);
-      const intro = lines.slice(0, 2).join(" ");
-      const venue = state.location || state.localAddress;
+      const intro = lines.join(" ");
+      const venue = state.location;
       return `
         <p class="ref-about-line">${escapeHtml(intro)}</p>
         <div class="ref-icon-line">${refIcon("eye", "ref-line-icon")}<span><strong>Vision:</strong> ${escapeHtml(state.meetingVision.replace(/^Meeting Vision:\s*/i, ""))}</span></div>
@@ -3358,9 +3461,7 @@
     }
 
     function participationHtml(value) {
-      const defaults = ["Guest Intro", "Table Topics", "Reflection", "Sharing"];
-      const values = splitLines(String(value || "").replaceAll("|", "\n"));
-      const items = values.length >= 4 ? values.slice(0, 4) : defaults;
+      const items = listFieldValues(value, 4, "pipe");
       const icons = ["user", "circleStar", "speech", "pencil"];
       return `
         <div class="ref-participation-grid">
@@ -3371,13 +3472,13 @@
             </div>
           `).join("")}
         </div>
-        <p class="ref-bottom-copy">No experience required.<br>First-timers are welcome.</p>
+        <p class="ref-bottom-copy">${escapeHtml(state.guestParticipationFooter).replace(/\n/g, "<br>")}</p>
       `;
     }
 
     function meetingRulesListHtml(value) {
       const icons = ["phone", "users", "trash"];
-      const rules = splitLines(value).slice(0, 3).map((line, index) => `
+      const rules = listFieldValues(value, 3).map((line, index) => `
         <li class="ref-rule-item">
           ${refIcon(icons[index] || "shield", "ref-rule-icon")}
           <span>${escapeHtml(line.replace(/^\d+\)\s*/, ""))}</span>
@@ -3478,6 +3579,13 @@
       }
       if (target.dataset.field) {
         state[target.dataset.field] = target.value;
+      }
+      if (target.dataset.listField) {
+        const field = target.dataset.listField;
+        const separator = target.dataset.listSeparator === "pipe" ? " | " : "\n";
+        state[field] = [...document.querySelectorAll(`[data-list-field="${CSS.escape(field)}"]`)]
+          .map((input) => input.value.trim())
+          .join(separator);
       }
       saveData();
       renderPreview();
@@ -3685,9 +3793,6 @@
         `Theme: ${state.theme}`,
         `Word of the Day: ${state.wordOfDay}`,
         `Location: ${state.location}`,
-        `Local Address: ${state.localAddress}`,
-        `Meeting Manager: ${state.meetingManager}`,
-        `Toastmaster: ${state.toastmaster}`,
         "",
         "Agenda"
       ];
