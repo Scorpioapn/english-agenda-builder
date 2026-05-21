@@ -440,6 +440,10 @@
       display: grid;
     }
 
+    .agenda-form-anchor.is-hidden {
+      display: none;
+    }
+
     .agenda-card {
       border: 1px solid var(--md-outline-variant);
       border-radius: 8px;
@@ -1471,6 +1475,21 @@
       align-items: center;
       gap: 4px;
       font-weight: 850;
+    }
+
+    .ref-bell-icon {
+      width: 8px;
+      height: 8px;
+      border: 0;
+      color: #092968;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .ref-bell-icon svg {
+      width: 8px;
+      height: 8px;
+      stroke-width: 2.3;
     }
 
     .ref-signal-dot {
@@ -2558,6 +2577,7 @@
     const els = {};
     let state = loadData();
     let editingId = null;
+    let isFormOpen = false;
     let draggedId = null;
     let toastTimer = null;
 
@@ -2673,6 +2693,7 @@
         pin: '<path d="M12 21s7-5.2 7-12a7 7 0 0 0-14 0c0 6.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.2"></circle>',
         info: '<circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path>',
         stopwatch: '<circle cx="12" cy="13" r="8"></circle><path d="M9 2h6M12 13l3-3"></path>',
+        bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path>',
         qr: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2M18 14h2M14 18h6M18 16v4"></path>',
         users: '<path d="M16 20v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="8" r="4"></circle><path d="M22 20v-2a4 4 0 0 0-3-3.9M2 20v-2a4 4 0 0 1 3-3.9"></path>',
         calendarDays: '<rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16M8 14h.01M12 14h.01M16 14h.01"></path>',
@@ -2858,6 +2879,7 @@
         ? [...els.agendaList.querySelectorAll("[data-form-host]")].find((host) => host.dataset.formHost === editingId)
         : null;
       (target || els.agendaFormAnchor).appendChild(els.agendaForm);
+      syncFormVisibility();
       autoSizeTextarea(els.itemDetail);
     }
 
@@ -3133,7 +3155,7 @@
               <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot green"></i>Green Card</span><span>${escapeHtml(shortSignalText(text("green")))}</span></div>
               <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot yellow"></i>Yellow Card</span><span>${escapeHtml(shortSignalText(text("yellow")))}</span></div>
               <div class="ref-signal-row ref-signal-red"><span class="ref-signal-mark"><i class="ref-signal-dot red"></i>Red Card</span><span>${escapeHtml(shortSignalText(text("red") || "TIME IS UP"))}</span></div>
-              ${bellText ? `<div class="ref-signal-row ref-signal-bell"><span class="ref-signal-mark">Bell</span><span>${escapeHtml(shortSignalText(bellText))}</span></div>` : ""}
+              ${bellText ? `<div class="ref-signal-row ref-signal-bell"><span class="ref-signal-mark">${refIcon("bell", "ref-bell-icon")}Bell</span><span>${escapeHtml(shortSignalText(bellText))}</span></div>` : ""}
             </div>
           </div>
         `;
@@ -3340,6 +3362,7 @@
       const item = state.items.find((entry) => entry.id === id);
       if (!item) return;
       editingId = item.id;
+      isFormOpen = true;
       els.itemKind.value = item.kind;
       els.itemTime.value = item.time || "";
       els.itemTitle.value = item.title || "";
@@ -3351,8 +3374,9 @@
       renderAgendaList({ revealForm: true });
     }
 
-    function clearForm(kind = "item") {
+    function clearForm(kind = "item", options = {}) {
       editingId = null;
+      isFormOpen = Boolean(options.open);
       els.itemKind.value = kind;
       els.itemTime.value = "";
       els.itemTitle.value = "";
@@ -3361,7 +3385,7 @@
       els.itemDetail.value = "";
       syncFormVisibility();
       autoSizeTextarea(els.itemDetail);
-      renderAgendaList();
+      renderAgendaList({ revealForm: isFormOpen });
     }
 
     function readForm() {
@@ -3518,6 +3542,9 @@
     }
 
     function syncFormVisibility() {
+      const formVisible = isFormOpen || Boolean(editingId);
+      els.agendaForm.hidden = !formVisible;
+      els.agendaFormAnchor.classList.toggle("is-hidden", !formVisible || Boolean(editingId));
       const isSection = els.itemKind.value === "section";
       els.itemTime.closest(".field").style.display = isSection ? "none" : "";
       els.itemDuration.closest(".field").style.display = isSection ? "none" : "";
@@ -3574,6 +3601,7 @@
         const text = await file.text();
         state = normalizeData(JSON.parse(text));
         editingId = null;
+        isFormOpen = false;
         saveData();
         renderAll();
         showToast("JSON imported");
@@ -3623,6 +3651,7 @@
       if (!confirmed) return;
       state = clone(DEFAULT_DATA);
       editingId = null;
+      isFormOpen = false;
       saveData();
       renderAll();
       showToast("Defaults restored");
@@ -3643,8 +3672,8 @@
         syncFormVisibility();
         syncAgendaDraftFromForm();
       });
-      els.addItemBtn.addEventListener("click", () => clearForm("item"));
-      els.addSectionBtn.addEventListener("click", () => clearForm("section"));
+      els.addItemBtn.addEventListener("click", () => clearForm("item", { open: true }));
+      els.addSectionBtn.addEventListener("click", () => clearForm("section", { open: true }));
       els.clearFormBtn.addEventListener("click", () => clearForm());
       els.deleteItemBtn.addEventListener("click", deleteCurrentItem);
       els.duplicateItemBtn.addEventListener("click", duplicateCurrentItem);
