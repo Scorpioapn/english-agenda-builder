@@ -1354,6 +1354,11 @@
       border-color: #fff;
     }
 
+    .ref-card:nth-child(2) {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
     .ref-card:nth-child(3) .ref-card-body {
       padding: 7px 8px 7px;
     }
@@ -1420,15 +1425,17 @@
 
     .ref-timing-stack {
       display: grid;
+      align-content: space-between;
       gap: 6px;
-      padding: 7px 8px 8px;
+      min-height: 0;
+      padding: 6px 8px;
     }
 
     .ref-timing-card {
       border: 0;
       border-radius: 0;
       border-top: 1px solid #e1e3e2;
-      padding: 5px 0 6px;
+      padding: 4px 0;
       display: grid;
       gap: 3px;
       background: #fff;
@@ -1437,31 +1444,31 @@
     .ref-timing-card h4 {
       margin: 0;
       color: var(--tm-maroon);
-      font-size: 8.3px;
-      line-height: 1.08;
+      font-size: 8.45px;
+      line-height: 1.1;
       text-transform: uppercase;
     }
 
     .ref-timing-scope {
       margin: 0;
       color: #202733;
-      font-size: 6.8px;
-      line-height: 1.15;
+      font-size: 7px;
+      line-height: 1.18;
       font-weight: 760;
     }
 
     .ref-signal-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 3px 8px;
+      gap: 3.5px 8px;
     }
 
     .ref-signal-row {
       display: grid;
       grid-template-columns: 50px minmax(0, 1fr);
       gap: 3px;
-      font-size: 6.65px;
-      line-height: 1.12;
+      font-size: 6.8px;
+      line-height: 1.16;
       align-items: center;
     }
 
@@ -1520,8 +1527,8 @@
       grid-template-columns: 14px minmax(0, 1fr);
       gap: 4px;
       color: #2b2417;
-      font-size: 6.9px;
-      line-height: 1.18;
+      font-size: 7px;
+      line-height: 1.2;
     }
 
     .ref-note .ref-line-icon {
@@ -1593,13 +1600,12 @@
 
     .ref-officer-term {
       display: grid;
-      width: min(100%, 206px);
-      grid-template-columns: 64px minmax(0, 138px);
-      gap: 7px;
-      margin-inline: auto;
+      width: 100%;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
       padding-bottom: 3px;
       border-bottom: 1px solid #e7ecea;
-      font-size: 6.8px;
+      font-size: 5.75px;
       line-height: 1.12;
     }
 
@@ -1611,10 +1617,9 @@
 
     .ref-officer-row {
       display: grid;
-      width: min(100%, 206px);
-      grid-template-columns: 64px minmax(0, 138px);
-      gap: 7px;
-      margin-inline: auto;
+      width: 100%;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
       align-items: baseline;
       font-size: 7.05px;
       line-height: 1.13;
@@ -1639,6 +1644,7 @@
 
     .ref-officer-term-value {
       text-align: left;
+      white-space: nowrap;
     }
 
     .ref-flow-card {
