@@ -73,7 +73,9 @@
       background:
         linear-gradient(90deg, rgba(119, 36, 50, 0.08), transparent 32%),
         linear-gradient(180deg, #fffbff 0%, #edf2f1 100%);
+      height: 100vh;
       min-height: 100vh;
+      overflow: hidden;
     }
 
     button,
@@ -92,7 +94,9 @@
       display: grid;
       grid-template-columns: minmax(360px, 440px) minmax(0, 1fr);
       gap: 18px;
+      height: 100vh;
       min-height: 100vh;
+      overflow: hidden;
       padding: 18px;
     }
 
@@ -100,7 +104,9 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       gap: 14px;
-      min-height: calc(100vh - 36px);
+      height: calc(100vh - 36px);
+      min-height: 0;
+      overflow: hidden;
     }
 
     .app-header,
@@ -254,14 +260,19 @@
 
     .editor-stack {
       border-radius: var(--radius);
-      overflow: auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
       padding: 14px;
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 14px;
-      align-content: start;
     }
 
     details.editor-section {
+      flex: 0 0 auto;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--md-surface);
@@ -508,9 +519,12 @@
     .preview-panel {
       border-radius: var(--radius);
       min-width: 0;
-      overflow: auto;
+      height: calc(100vh - 36px);
+      min-height: 0;
+      overflow: hidden;
       padding: 18px;
       display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
       align-content: start;
       justify-items: center;
       gap: 12px;
@@ -530,8 +544,13 @@
     .preview-stage {
       width: 100%;
       min-width: 0;
+      min-height: 0;
+      height: 100%;
       display: grid;
+      align-items: center;
+      align-content: center;
       justify-items: center;
+      overflow: hidden;
     }
 
     .preview-sheet {
@@ -1937,21 +1956,41 @@
 
     @media (max-width: 1180px) {
       .app-shell {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+        gap: 12px;
+        padding: 12px;
       }
 
       .control-panel {
-        min-height: auto;
+        height: calc(100vh - 24px);
       }
 
-      .editor-stack {
-        max-height: none;
+      .preview-panel {
+        height: calc(100vh - 24px);
       }
     }
 
     @media (max-width: 760px) {
+      body {
+        height: auto;
+        overflow: auto;
+      }
+
       .app-shell {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
         padding: 10px;
+      }
+
+      .control-panel {
+        height: auto;
+        overflow: visible;
+      }
+
+      .editor-stack {
+        overflow: visible;
       }
 
       .field-grid,
@@ -1963,6 +2002,12 @@
       }
 
       .preview-panel {
+        height: 58vh;
+        min-height: 360px;
+        position: sticky;
+        top: 10px;
+        z-index: 5;
+        order: -1;
         padding: 10px;
       }
 
@@ -2794,7 +2839,9 @@
       const pageWidth = els.printPage.offsetWidth || 794;
       const pageHeight = els.printPage.offsetHeight || 1123;
       const availableWidth = Math.max(280, (els.previewStage?.clientWidth || pageWidth) - 4);
-      const scale = Math.min(1, availableWidth / pageWidth);
+      const stageHeight = els.previewStage?.clientHeight || Math.max(360, window.innerHeight - 100);
+      const availableHeight = Math.max(320, stageHeight - 4);
+      const scale = Math.min(1, availableWidth / pageWidth, availableHeight / pageHeight);
       els.previewSheet.style.setProperty("--preview-scale", scale.toFixed(4));
       els.previewSheet.style.width = `${Math.ceil(pageWidth * scale)}px`;
       els.previewSheet.style.height = `${Math.ceil(pageHeight * scale)}px`;
