@@ -436,6 +436,10 @@
       padding-right: 2px;
     }
 
+    .agenda-form-anchor {
+      display: grid;
+    }
+
     .agenda-card {
       border: 1px solid var(--md-outline-variant);
       border-radius: 8px;
@@ -445,6 +449,10 @@
       gap: 9px;
       cursor: grab;
       transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease, transform 0.12s ease;
+    }
+
+    .agenda-card.editing-card {
+      cursor: default;
     }
 
     .agenda-card.section-card {
@@ -537,6 +545,19 @@
       padding: 14px;
       display: grid;
       gap: 14px;
+      cursor: default;
+    }
+
+    .agenda-card .agenda-form {
+      margin-top: 3px;
+      background: #fff;
+      border-color: rgba(119, 36, 50, 0.32);
+      box-shadow: inset 4px 0 0 rgba(119, 36, 50, 0.16);
+    }
+
+    .inline-form-host {
+      display: grid;
+      grid-column: 1 / -1;
     }
 
     .preview-panel {
@@ -2229,43 +2250,45 @@
               </div>
               <button class="btn ghost" id="clearFormBtn" type="button">Clear Form</button>
             </div>
+            <div class="agenda-form-anchor" id="agendaFormAnchor">
+              <form class="agenda-form" id="agendaForm">
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="itemKind">Type</label>
+                    <select class="select" id="itemKind">
+                      <option value="item">Agenda item</option>
+                      <option value="section">Section heading</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="itemTime">Start time</label>
+                    <input class="input" id="itemTime" type="time" />
+                  </div>
+                  <div class="field full">
+                    <label for="itemTitle">Program</label>
+                    <input class="input" id="itemTitle" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <label for="itemDuration">Duration</label>
+                    <input class="input" id="itemDuration" autocomplete="off" placeholder="5 or 5-7" />
+                  </div>
+                  <div class="field">
+                    <label for="itemPerson">Participant</label>
+                    <input class="input" id="itemPerson" autocomplete="off" />
+                  </div>
+                  <div class="field full">
+                    <label for="itemDetail">Details</label>
+                    <textarea class="textarea" id="itemDetail"></textarea>
+                  </div>
+                </div>
+                <div class="action-row">
+                  <button class="btn primary" id="saveItemBtn" type="submit">Save Item</button>
+                  <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
+                  <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
+                </div>
+              </form>
+            </div>
             <div class="agenda-list" id="agendaList"></div>
-            <form class="agenda-form" id="agendaForm">
-              <div class="field-grid">
-                <div class="field">
-                  <label for="itemKind">Type</label>
-                  <select class="select" id="itemKind">
-                    <option value="item">Agenda item</option>
-                    <option value="section">Section heading</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="itemTime">Start time</label>
-                  <input class="input" id="itemTime" type="time" />
-                </div>
-                <div class="field full">
-                  <label for="itemTitle">Program</label>
-                  <input class="input" id="itemTitle" autocomplete="off" />
-                </div>
-                <div class="field">
-                  <label for="itemDuration">Duration</label>
-                  <input class="input" id="itemDuration" autocomplete="off" placeholder="5 or 5-7" />
-                </div>
-                <div class="field">
-                  <label for="itemPerson">Participant</label>
-                  <input class="input" id="itemPerson" autocomplete="off" />
-                </div>
-                <div class="field full">
-                  <label for="itemDetail">Details</label>
-                  <textarea class="textarea" id="itemDetail"></textarea>
-                </div>
-              </div>
-              <div class="action-row">
-                <button class="btn primary" id="saveItemBtn" type="submit">Save Item</button>
-                <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
-                <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
-              </div>
-            </form>
           </div>
         </details>
 
@@ -2633,7 +2656,9 @@
     function setupElements() {
       Object.assign(els, {
         meetingFields: $("#meetingFields"),
+        editorStack: $(".editor-stack"),
         agendaList: $("#agendaList"),
+        agendaFormAnchor: $("#agendaFormAnchor"),
         agendaCount: $("#agendaCount"),
         agendaForm: $("#agendaForm"),
         itemKind: $("#itemKind"),
@@ -2717,7 +2742,8 @@
       scope.querySelectorAll("textarea.textarea").forEach(autoSizeTextarea);
     }
 
-    function renderAgendaList() {
+    function renderAgendaList(options = {}) {
+      const previousScrollTop = els.editorStack?.scrollTop || 0;
       const itemCount = state.items.filter((item) => item.kind !== "section").length;
       els.agendaCount.textContent = `${itemCount} agenda lines`;
       els.agendaList.innerHTML = state.items.map((item, index) => {
@@ -2726,7 +2752,7 @@
           ? "Section heading"
           : [item.duration ? `${item.duration} min` : "", item.person].filter(Boolean).join(" | ");
         return `
-          <article class="agenda-card ${item.kind === "section" ? "section-card" : ""} ${isActive ? "active" : ""}" data-id="${escapeHtml(item.id)}" draggable="true" aria-label="Drag to reorder ${escapeHtml(item.title || "agenda item")}">
+          <article class="agenda-card ${item.kind === "section" ? "section-card" : ""} ${isActive ? "active editing-card" : ""}" data-id="${escapeHtml(item.id)}" draggable="true" aria-label="Drag to reorder ${escapeHtml(item.title || "agenda item")}">
             <div class="agenda-main">
               <span class="drag-handle" aria-hidden="true"></span>
               <div class="agenda-time">${escapeHtml(item.kind === "section" ? "" : item.time || "--:--")}</div>
@@ -2739,9 +2765,65 @@
             <div class="item-actions">
               <button class="btn small" type="button" data-action="edit" data-id="${escapeHtml(item.id)}">Edit</button>
             </div>
+            ${isActive ? `<div class="inline-form-host" data-form-host="${escapeHtml(item.id)}"></div>` : ""}
           </article>
         `;
       }).join("");
+      placeAgendaForm();
+      if (els.editorStack) els.editorStack.scrollTop = previousScrollTop;
+      if (options.revealForm) revealAgendaForm();
+    }
+
+    function placeAgendaForm() {
+      const target = editingId
+        ? [...els.agendaList.querySelectorAll("[data-form-host]")].find((host) => host.dataset.formHost === editingId)
+        : null;
+      (target || els.agendaFormAnchor).appendChild(els.agendaForm);
+      autoSizeTextarea(els.itemDetail);
+    }
+
+    function revealAgendaForm() {
+      if (!els.editorStack || !els.agendaForm) return;
+      const panelRect = els.editorStack.getBoundingClientRect();
+      const formRect = els.agendaForm.getBoundingClientRect();
+      const padding = 10;
+      if (formRect.top < panelRect.top + padding) {
+        els.editorStack.scrollTop += formRect.top - panelRect.top - padding;
+      } else if (formRect.bottom > panelRect.bottom - padding) {
+        const shiftToTop = formRect.top - panelRect.top - padding;
+        const shiftToBottom = formRect.bottom - panelRect.bottom + padding;
+        els.editorStack.scrollTop += Math.min(Math.max(shiftToBottom, 0), Math.max(shiftToTop, 0));
+      }
+    }
+
+    function updateActiveAgendaCard() {
+      const item = state.items.find((entry) => entry.id === editingId);
+      if (!item) return;
+      const card = [...els.agendaList.querySelectorAll(".agenda-card")].find((node) => node.dataset.id === item.id);
+      if (!card) return;
+
+      const meta = item.kind === "section"
+        ? "Section heading"
+        : [item.duration ? `${item.duration} min` : "", item.person].filter(Boolean).join(" | ");
+      const timeEl = card.querySelector(".agenda-time");
+      const titleEl = card.querySelector(".agenda-title");
+      const metaEl = card.querySelector(".agenda-meta");
+      let detailEl = card.querySelector(".agenda-detail");
+
+      card.classList.toggle("section-card", item.kind === "section");
+      if (timeEl) timeEl.textContent = item.kind === "section" ? "" : item.time || "--:--";
+      if (titleEl) titleEl.textContent = item.title || "Untitled";
+      if (metaEl) metaEl.textContent = meta;
+      if (item.detail) {
+        if (!detailEl) {
+          detailEl = document.createElement("div");
+          detailEl.className = "agenda-detail";
+          metaEl?.after(detailEl);
+        }
+        detailEl.textContent = item.detail;
+      } else {
+        detailEl?.remove();
+      }
     }
 
     function renderPreview() {
@@ -3161,7 +3243,7 @@
       els.itemDetail.value = item.detail || "";
       syncFormVisibility();
       autoSizeTextarea(els.itemDetail);
-      renderAgendaList();
+      renderAgendaList({ revealForm: true });
     }
 
     function clearForm(kind = "item") {
@@ -3215,7 +3297,7 @@
       if (index < 0) return;
       state.items[index] = readForm();
       saveData();
-      renderAgendaList();
+      updateActiveAgendaCard();
       renderPreview();
     }
 
@@ -3282,7 +3364,10 @@
 
     function handleAgendaDragStart(event) {
       const card = event.target.closest(".agenda-card");
-      if (!card || event.target.closest("button")) return;
+      if (!card || event.target.closest("button, input, textarea, select, .agenda-form")) {
+        event.preventDefault();
+        return;
+      }
       draggedId = card.dataset.id;
       card.classList.add("dragging");
       event.dataTransfer.effectAllowed = "move";
