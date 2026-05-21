@@ -1357,9 +1357,17 @@
     .ref-timing-card h4 {
       margin: 0;
       color: var(--tm-maroon);
-      font-size: 9.2px;
+      font-size: 8.4px;
       line-height: 1.1;
       text-transform: uppercase;
+    }
+
+    .ref-timing-scope {
+      margin: -1px 0 1px;
+      color: #202733;
+      font-size: 6.5px;
+      line-height: 1.18;
+      font-weight: 760;
     }
 
     .ref-signal-grid {
@@ -1370,10 +1378,15 @@
 
     .ref-signal-row {
       display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
+      grid-template-columns: 52px minmax(0, 1fr);
       gap: 3px;
-      font-size: 7.1px;
+      font-size: 6.5px;
       align-items: center;
+    }
+
+    .ref-signal-row.ref-signal-red,
+    .ref-signal-row.ref-signal-bell {
+      grid-column: 1 / -1;
     }
 
     .ref-signal-mark {
@@ -2260,9 +2273,9 @@
         "SAA | Lisa Yang"
       ].join("\n"),
       timingRules: [
-        "Less than or equal to 2 minutes | Green: 1 minute left | Yellow: 30 seconds left | Red: time is up | Bell: 30 seconds later",
-        "Less than or equal to 3 minutes | Green: 2 minutes left | Yellow: 30 seconds left | Red: time is up | Bell: 30 seconds later",
-        "Less than or equal to 7 minutes and sessions over 7 minutes | Green: 2 minutes left | Yellow: 1 minute left | Red: time is up | Bell: 30 seconds later"
+        "Less/equal 2min | Speech length: Table topic speakers, facilitators' introductions | Green Card: 1 minute left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell",
+        "Less/equal 3 min | Speech length: Individual Evaluation, Facilitators' Report | Green Card: 2 minutes left | Yellow Card: 30 seconds left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell",
+        "Less/equal 7 min, and other sessions more than 7mins | Speech length: Prepared Speech, Table Topic Evaluation, General Evaluation, Workshops | Green Card: 2 minutes left | Yellow Card: 1 minutes left | Red Card: TIME IS UP | Bell: 30\" later, timer will ring the bell"
       ].join("\n"),
       meetingRules: [
         "Please turn off your phone or switch it to silent mode during the meeting.",
@@ -2401,8 +2414,20 @@
       if (/[\u4e00-\u9fff]/.test(String(normalized.localAddress || ""))) {
         normalized.localAddress = DEFAULT_DATA.localAddress;
       }
+      if (isLegacyTimingRules(normalized.timingRules)) {
+        normalized.timingRules = DEFAULT_DATA.timingRules;
+      }
       normalized.items = Array.isArray(data.items) ? data.items.map(normalizeItem) : clone(DEFAULT_DATA.items);
       return normalized;
+    }
+
+    function isLegacyTimingRules(value) {
+      const text = String(value || "");
+      return !text.trim()
+        || (text.includes("Less than or equal to 2 minutes") && text.includes("Bell:"))
+        || (text.includes("Less than or equal to 3 minutes") && text.includes("Bell:"))
+        || (text.includes("Less/equal 2 min") && !text.includes("timer will ring the bell"))
+        || (text.includes("Less/equal 2min") && !text.includes("timer will ring the bell"));
     }
 
     function normalizeItem(item) {
@@ -2823,18 +2848,21 @@
       return splitLines(value).map((line) => {
         const parts = line.split("|").map((part) => part.trim());
         const title = parts.shift() || "";
-        const text = (name) => {
-          const part = parts.find((entry) => entry.toLowerCase().startsWith(name));
+        const text = (...names) => {
+          const part = parts.find((entry) => names.some((name) => entry.toLowerCase().startsWith(name)));
           return part && part.includes(":") ? part.split(":").slice(1).join(":").trim() : "";
         };
+        const speechLength = text("speech length", "speech");
+        const bellText = text("bell");
         return `
           <div class="ref-timing-card">
             <h4>${escapeHtml(shortTimingTitle(title))}</h4>
+            ${speechLength ? `<p class="ref-timing-scope">${escapeHtml(speechLength)}</p>` : ""}
             <div class="ref-signal-grid">
-              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot green"></i>Green</span><span>${escapeHtml(shortSignalText(text("green")))}</span></div>
-              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot yellow"></i>Yellow</span><span>${escapeHtml(shortSignalText(text("yellow")))}</span></div>
-              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot red"></i>Red</span><span>${escapeHtml(shortSignalText(text("red") || "Time is up"))}</span></div>
-              <div class="ref-signal-row"><span class="ref-signal-mark">Bell</span><span>${escapeHtml(shortSignalText(text("bell")))}</span></div>
+              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot green"></i>Green Card</span><span>${escapeHtml(shortSignalText(text("green")))}</span></div>
+              <div class="ref-signal-row"><span class="ref-signal-mark"><i class="ref-signal-dot yellow"></i>Yellow Card</span><span>${escapeHtml(shortSignalText(text("yellow")))}</span></div>
+              <div class="ref-signal-row ref-signal-red"><span class="ref-signal-mark"><i class="ref-signal-dot red"></i>Red Card</span><span>${escapeHtml(shortSignalText(text("red") || "TIME IS UP"))}</span></div>
+              ${bellText ? `<div class="ref-signal-row ref-signal-bell"><span class="ref-signal-mark">Bell</span><span>${escapeHtml(shortSignalText(bellText))}</span></div>` : ""}
             </div>
           </div>
         `;
@@ -2842,17 +2870,15 @@
     }
 
     function shortTimingTitle(title) {
-      if (title.includes("2")) return "3 Minutes or Less";
-      if (title.includes("3")) return "3-10 Minutes";
-      return "Over 10 Minutes";
+      return String(title || "")
+        .replace(/minutes?/gi, "min")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
     function shortSignalText(value) {
       return String(value || "")
-        .replace(/minutes?/gi, "min")
-        .replace(/seconds?/gi, "sec")
-        .replace(/later/gi, "overtime")
-        .replace(/time is up/gi, "Time is up")
+        .replace(/time is up/gi, "TIME IS UP")
         .replace(/\s+/g, " ")
         .trim();
     }
