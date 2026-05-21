@@ -611,6 +611,7 @@
 
     .preview-sheet {
       --preview-scale: 1;
+      --preview-min-scale: 0;
       position: relative;
       width: var(--page-width);
       height: var(--page-height);
@@ -2129,45 +2130,58 @@
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 1080px) {
       body {
-        height: auto;
-        overflow: auto;
+        height: 100vh;
+        overflow: hidden;
       }
 
       .app-shell {
         grid-template-columns: 1fr;
-        height: auto;
-        min-height: 100vh;
-        overflow: visible;
-        padding: 10px;
+        grid-template-rows: minmax(330px, 52vh) minmax(0, 1fr);
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+        gap: 8px;
+        padding: 8px;
       }
 
       .control-panel {
         height: auto;
-        overflow: visible;
+        min-height: 0;
+        overflow: hidden;
       }
 
       .editor-stack {
-        overflow: visible;
-      }
-
-      .field-grid,
-      .info-strip,
-      .content-grid,
-      .footer-grid,
-      .page-header {
-        grid-template-columns: 1fr;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: 10px;
       }
 
       .preview-panel {
-        height: 58vh;
-        min-height: 360px;
-        position: sticky;
-        top: 10px;
-        z-index: 5;
+        height: auto;
+        min-height: 0;
+        position: relative;
+        top: auto;
+        z-index: auto;
         order: -1;
-        padding: 30px 8px 8px;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        padding: 8px;
+      }
+
+      .preview-toolbar {
+        position: static;
+        width: auto;
+        min-width: 0;
+        flex-wrap: wrap;
+        padding: 0 4px 5px;
+      }
+
+      .preview-stage {
+        height: auto;
+        align-content: start;
+        padding: 0 0 10px;
       }
 
       .print-page:not(.ref-page) {
@@ -2181,7 +2195,94 @@
         width: var(--page-width);
         height: var(--page-height);
         min-height: 0;
-        padding: 7mm;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        grid-template-rows: minmax(340px, 52vh) minmax(0, 1fr);
+      }
+
+      .control-panel {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      .app-header {
+        margin-bottom: 10px;
+        padding: 12px;
+        gap: 10px;
+      }
+
+      .brand-row {
+        grid-template-columns: 74px minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .brand-mark {
+        width: 74px;
+        height: 50px;
+        padding: 6px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .top-actions .btn {
+        flex: 1 1 calc(50% - 8px);
+        padding: 9px 10px;
+        font-size: 12.5px;
+      }
+
+      .editor-stack {
+        overflow: visible;
+        padding: 8px;
+      }
+
+      .field-grid,
+      .info-strip,
+      .content-grid,
+      .footer-grid,
+      .page-header {
+        grid-template-columns: 1fr;
+      }
+
+      .section-body,
+      .agenda-form {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .agenda-main {
+        grid-template-columns: 16px 46px minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .preview-sheet {
+        --preview-min-scale: 0.52;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .preview-stage {
+        justify-items: start;
+      }
+
+      .preview-toolbar {
+        gap: 6px;
+        font-size: 11px;
+      }
+
+      .preview-toolbar span {
+        overflow-wrap: anywhere;
       }
     }
 
@@ -3099,10 +3200,13 @@
       const pageWidth = els.printPage.offsetWidth || 794;
       const pageHeight = els.printPage.offsetHeight || 1123;
       const availableWidth = Math.max(280, (els.previewStage?.clientWidth || pageWidth) - 24);
-      const scale = Math.min(1, availableWidth / pageWidth);
+      const fitScale = availableWidth / pageWidth;
+      const minScale = Number.parseFloat(getComputedStyle(els.previewSheet).getPropertyValue("--preview-min-scale")) || 0;
+      const scale = Math.min(1, Math.max(minScale, fitScale));
       els.previewSheet.style.setProperty("--preview-scale", scale.toFixed(4));
       els.previewSheet.style.width = `${Math.ceil(pageWidth * scale)}px`;
       els.previewSheet.style.height = `${Math.ceil(pageHeight * scale)}px`;
+      els.previewSheet.dataset.overflowing = scale > fitScale + 0.001 ? "true" : "false";
       els.previewMeta.dataset.fit = els.printPage.scrollHeight <= els.printPage.clientHeight + 1 ? "ok" : "overflow";
     }
 
