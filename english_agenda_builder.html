@@ -3284,9 +3284,8 @@
       } else {
         state.items.push(item);
       }
-      editingId = item.id;
       saveData();
-      renderAgendaList();
+      clearForm();
       renderPreview();
       showToast("Agenda item saved");
     }
