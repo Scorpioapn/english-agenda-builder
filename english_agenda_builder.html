@@ -575,10 +575,13 @@
       min-height: 0;
       height: 100%;
       display: grid;
-      align-items: center;
-      align-content: center;
+      align-items: start;
+      align-content: start;
       justify-items: center;
-      overflow: hidden;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      padding: 0 0 18px;
     }
 
     .preview-sheet {
@@ -2890,10 +2893,8 @@
       if (!els.previewSheet || !els.printPage) return;
       const pageWidth = els.printPage.offsetWidth || 794;
       const pageHeight = els.printPage.offsetHeight || 1123;
-      const availableWidth = Math.max(280, (els.previewStage?.clientWidth || pageWidth) - 4);
-      const stageHeight = els.previewStage?.clientHeight || Math.max(360, window.innerHeight - 100);
-      const availableHeight = Math.max(320, stageHeight - 4);
-      const scale = Math.min(1, availableWidth / pageWidth, availableHeight / pageHeight);
+      const availableWidth = Math.max(280, (els.previewStage?.clientWidth || pageWidth) - 24);
+      const scale = Math.min(1, availableWidth / pageWidth);
       els.previewSheet.style.setProperty("--preview-scale", scale.toFixed(4));
       els.previewSheet.style.width = `${Math.ceil(pageWidth * scale)}px`;
       els.previewSheet.style.height = `${Math.ceil(pageHeight * scale)}px`;
