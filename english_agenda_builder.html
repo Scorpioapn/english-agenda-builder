@@ -403,6 +403,7 @@
       resize: none;
       min-height: 94px;
       line-height: 1.5;
+      overflow-x: hidden;
       overflow-y: hidden;
     }
 
@@ -432,8 +433,6 @@
     .agenda-list {
       display: grid;
       gap: 10px;
-      max-height: 520px;
-      overflow: auto;
       padding-right: 2px;
     }
 
@@ -1683,13 +1682,13 @@
 
     .ref-program-detail {
       display: -webkit-box;
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       margin-top: 1px;
       color: #46556a;
-      font-size: 6.2px;
-      line-height: 1.1;
+      font-size: 5.6px;
+      line-height: 1.08;
       font-weight: 680;
     }
 
@@ -2431,9 +2430,9 @@
       ["nextTheme", "Next Meeting Theme", "text"],
       ["nextMeetingTime", "Next Meeting Time", "text"],
       ["nextVenue", "Next Meeting Venue", "textarea"],
-      ["guestParticipation", "Guest Participation Tags", "text"],
+      ["guestParticipation", "Guest Participation Tags", "textarea"],
       ["liveVotingTitle", "Live Voting Title", "text"],
-      ["liveVotingNote", "Live Voting Note", "text"],
+      ["liveVotingNote", "Live Voting Note", "textarea"],
       ["officialQrSrc", "Official QR Image", "image"],
       ["membershipQrSrc", "Membership QR Image", "image"],
       ["votingQrSrc", "Voting QR Image", "image"]
