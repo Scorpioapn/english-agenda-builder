@@ -1558,7 +1558,7 @@
     .ref-agenda-table td {
       border-top: 1px solid #dedede;
       border-left: 1px solid #dedede;
-      padding: 2.3px 5px;
+      padding: 2px 5px;
       vertical-align: middle;
       overflow-wrap: anywhere;
     }
@@ -1630,10 +1630,19 @@
 
     .ref-program-title {
       font-weight: 760;
+      line-height: 1.13;
     }
 
     .ref-program-detail {
-      display: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 1px;
+      color: #46556a;
+      font-size: 6.2px;
+      line-height: 1.1;
+      font-weight: 680;
     }
 
     .ref-agenda-table tbody tr:nth-child(odd) td:not(.ref-stage-cell) {
