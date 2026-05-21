@@ -93,18 +93,18 @@
     .app-shell {
       display: grid;
       grid-template-columns: minmax(360px, 440px) minmax(0, 1fr);
-      gap: 18px;
+      gap: 14px;
       height: 100vh;
       min-height: 100vh;
       overflow: hidden;
-      padding: 18px;
+      padding: 10px 12px;
     }
 
     .control-panel {
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       gap: 14px;
-      height: calc(100vh - 36px);
+      height: calc(100vh - 20px);
       min-height: 0;
       overflow: hidden;
     }
@@ -400,9 +400,10 @@
     }
 
     .textarea {
-      resize: vertical;
+      resize: none;
       min-height: 94px;
       line-height: 1.5;
+      overflow-y: hidden;
     }
 
     #meetingFields .field-readable {
@@ -542,26 +543,31 @@
     .preview-panel {
       border-radius: var(--radius);
       min-width: 0;
-      height: calc(100vh - 36px);
+      height: calc(100vh - 20px);
       min-height: 0;
       overflow: hidden;
-      padding: 18px;
+      padding: 30px 10px 8px;
+      position: relative;
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
       align-content: start;
       justify-items: center;
-      gap: 12px;
     }
 
     .preview-toolbar {
-      width: min(100%, var(--page-width));
+      position: absolute;
+      top: 9px;
+      left: 14px;
+      right: 14px;
+      z-index: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
       color: var(--muted);
       font-size: 12px;
-      padding: 0 2px;
+      line-height: 1.2;
+      padding: 0;
     }
 
     .preview-stage {
@@ -1980,16 +1986,16 @@
     @media (max-width: 1180px) {
       .app-shell {
         grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
-        gap: 12px;
-        padding: 12px;
+        gap: 10px;
+        padding: 10px;
       }
 
       .control-panel {
-        height: calc(100vh - 24px);
+        height: calc(100vh - 20px);
       }
 
       .preview-panel {
-        height: calc(100vh - 24px);
+        height: calc(100vh - 20px);
       }
     }
 
@@ -2031,7 +2037,7 @@
         top: 10px;
         z-index: 5;
         order: -1;
-        padding: 10px;
+        padding: 30px 8px 8px;
       }
 
       .print-page:not(.ref-page) {
@@ -2699,6 +2705,16 @@
       }
     }
 
+    function autoSizeTextarea(textarea) {
+      if (!textarea || textarea.tagName !== "TEXTAREA") return;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight + 2}px`;
+    }
+
+    function autoSizeTextareas(scope = document) {
+      scope.querySelectorAll("textarea.textarea").forEach(autoSizeTextarea);
+    }
+
     function renderAgendaList() {
       const itemCount = state.items.filter((item) => item.kind !== "section").length;
       els.agendaCount.textContent = `${itemCount} agenda lines`;
@@ -3117,10 +3133,12 @@
       renderAgendaList();
       renderPreview();
       syncFormVisibility();
+      autoSizeTextareas();
     }
 
     function syncFromInputs(event) {
       const target = event.target;
+      autoSizeTextarea(target);
       if (target.dataset.meetingField) {
         state[target.dataset.meetingField] = target.value;
       }
@@ -3142,6 +3160,7 @@
       els.itemPerson.value = item.person || "";
       els.itemDetail.value = item.detail || "";
       syncFormVisibility();
+      autoSizeTextarea(els.itemDetail);
       renderAgendaList();
     }
 
@@ -3154,6 +3173,7 @@
       els.itemPerson.value = "";
       els.itemDetail.value = "";
       syncFormVisibility();
+      autoSizeTextarea(els.itemDetail);
       renderAgendaList();
     }
 
