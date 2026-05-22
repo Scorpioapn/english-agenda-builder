@@ -190,12 +190,32 @@
       els.previewSheet.style.width = `${Math.ceil(pageWidth * scale)}px`;
       els.previewSheet.style.height = `${Math.ceil(pageHeight * scale)}px`;
       els.previewSheet.dataset.overflowing = scale > fitScale + 0.001 ? "true" : "false";
-      const contentOverflowing = els.printPage.scrollHeight > els.printPage.clientHeight + 1;
+      const contentOverflowing = isPrintPageOverflowing();
       els.previewMeta.dataset.fit = contentOverflowing ? "overflow" : "ok";
       els.previewPanel?.classList.toggle("is-overflowing", contentOverflowing);
       if (els.overflowWarning) {
         els.overflowWarning.hidden = !contentOverflowing;
       }
+    }
+
+    function isPrintPageOverflowing() {
+      if (!els.printPage) return false;
+      if (els.printPage.scrollHeight > els.printPage.clientHeight + 1) return true;
+      if (els.printPage.scrollWidth > els.printPage.clientWidth + 1) return true;
+
+      const constrainedSelectors = [
+        ".ref-card",
+        ".ref-flow-card",
+        ".ref-table-wrap",
+        ".ref-bottom-card",
+        ".ref-side-stack",
+        ".ref-bottom-grid",
+        ".ref-main-grid"
+      ].join(",");
+
+      return [...els.printPage.querySelectorAll(constrainedSelectors)].some((node) => {
+        return node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1;
+      });
     }
 
     function buildAgendaGroups() {
