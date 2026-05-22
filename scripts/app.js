@@ -5,6 +5,7 @@
     let isFormOpen = false;
     let draggedId = null;
     let toastTimer = null;
+    let activeEditorTab = "agenda";
     const scheduleSaveAndPreview = debounce(() => {
       saveData();
       renderPreview();
@@ -40,9 +41,13 @@
     function setupElements() {
       Object.assign(els, {
         meetingFields: $("#meetingFields"),
+        qrFields: $("#qrFields"),
         editorStack: $(".editor-stack"),
+        editorTabs: [...document.querySelectorAll("[data-editor-tab]")],
+        editorPanels: [...document.querySelectorAll("[data-editor-panel]")],
         agendaList: $("#agendaList"),
         agendaFormAnchor: $("#agendaFormAnchor"),
+        selectedEditorCard: $("#selectedEditorCard"),
         agendaCount: $("#agendaCount"),
         agendaForm: $("#agendaForm"),
         itemKind: $("#itemKind"),
@@ -81,10 +86,29 @@
         toast: $("#toast")
       });
     }
+
+    function setEditorTab(tab) {
+      if (!["basics", "agenda", "club", "output"].includes(tab)) return;
+      activeEditorTab = tab;
+      syncEditorTabs();
+    }
+
+    function syncEditorTabs() {
+      for (const button of els.editorTabs || []) {
+        const isActive = button.dataset.editorTab === activeEditorTab;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      }
+      for (const panel of els.editorPanels || []) {
+        panel.hidden = panel.dataset.editorPanel !== activeEditorTab;
+      }
+    }
+
     function renderAll() {
       renderInputs();
       renderAgendaList();
       renderPreview();
+      syncEditorTabs();
       syncFormVisibility();
       autoSizeTextareas();
     }
@@ -123,6 +147,7 @@
       els.itemDuration.value = item.duration || "";
       els.itemPerson.value = item.person || "";
       els.itemDetail.value = item.detail || "";
+      setEditorTab("agenda");
       syncFormVisibility();
       autoSizeTextarea(els.itemDetail);
       updateDurationWarning();
@@ -138,6 +163,7 @@
       els.itemDuration.value = "";
       els.itemPerson.value = "";
       els.itemDetail.value = "";
+      if (isFormOpen) setEditorTab("agenda");
       syncFormVisibility();
       autoSizeTextarea(els.itemDetail);
       updateDurationWarning();
@@ -298,7 +324,10 @@
     function syncFormVisibility() {
       const formVisible = isFormOpen || Boolean(editingId);
       els.agendaForm.hidden = !formVisible;
-      els.agendaFormAnchor.classList.toggle("is-hidden", !formVisible || Boolean(editingId));
+      els.agendaFormAnchor.classList.toggle("is-hidden", !formVisible);
+      if (els.selectedEditorCard) {
+        els.selectedEditorCard.hidden = !formVisible;
+      }
       const isSection = els.itemKind.value === "section";
       els.itemTime.closest(".field").style.display = isSection ? "none" : "";
       els.itemDuration.closest(".field").style.display = isSection ? "none" : "";
@@ -442,6 +471,9 @@
       els.importBtn.addEventListener("click", () => els.importFile.click());
       els.importFile.addEventListener("change", (event) => importJson(event.target.files[0]));
       els.resetBtn.addEventListener("click", resetDefaults);
+      for (const tab of els.editorTabs) {
+        tab.addEventListener("click", () => setEditorTab(tab.dataset.editorTab));
+      }
       document.addEventListener("click", handleQrUploadClick);
       document.addEventListener("change", handleQrUploadChange);
       els.agendaList.addEventListener("click", (event) => {

@@ -18,120 +18,163 @@
           </div>
           <div>
             <h1>English Agenda Builder</h1>
-            <p class="subtitle">CBD Toastmasters Club agenda workspace, seeded from Meeting #441.</p>
+            <p class="subtitle">CBD Toastmasters agenda workspace</p>
+            <p class="subtitle compact-subtitle">Compact inspector editor</p>
           </div>
         </div>
         <div class="status-row">
           <span class="save-status" id="saveStatus">Local draft ready</span>
-          <span class="agenda-count" id="agendaCount">0 agenda lines</span>
+          <span class="agenda-count" id="agendaCount">0 lines</span>
         </div>
         <div class="top-actions">
           <button class="btn primary" id="printBtn" type="button">Print A4</button>
-          <button class="btn" id="copyBtn" type="button">Copy Text</button>
-          <button class="btn" id="exportBtn" type="button">Export JSON</button>
-          <button class="btn" id="importBtn" type="button">Import JSON</button>
-          <button class="btn ghost" id="resetBtn" type="button">Reset Defaults</button>
+          <button class="btn" id="copyBtn" type="button">Copy</button>
+          <button class="btn" id="exportBtn" type="button">Export</button>
+          <button class="btn" id="importBtn" type="button">Import</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset</button>
           <input class="hidden-input" id="importFile" type="file" accept="application/json,.json" />
         </div>
       </header>
 
+      <nav class="editor-tabs" aria-label="Editor sections">
+        <button class="editor-tab" type="button" data-editor-tab="basics" aria-selected="false">Basics</button>
+        <button class="editor-tab active" type="button" data-editor-tab="agenda" aria-selected="true">Agenda</button>
+        <button class="editor-tab" type="button" data-editor-tab="club" aria-selected="false">Club</button>
+        <button class="editor-tab" type="button" data-editor-tab="output" aria-selected="false">Output</button>
+      </nav>
+
       <div class="editor-stack">
-        <details class="editor-section" open>
-          <summary>Meeting Basics</summary>
+        <section class="editor-panel inspector-panel" data-editor-panel="basics" hidden>
+          <div class="panel-heading">
+            <div>
+              <h2>Basics</h2>
+              <p>Meeting setup and QR images</p>
+            </div>
+          </div>
           <div class="section-body">
             <div class="field-grid" id="meetingFields"></div>
+            <div class="inspector-card">
+              <div class="card-heading">
+                <h3>QR Images</h3>
+                <span>Click a tile to replace</span>
+              </div>
+              <div class="qr-tile-grid" id="qrFields"></div>
+            </div>
           </div>
-        </details>
+        </section>
 
-        <details class="editor-section" open>
-          <summary>Agenda Items</summary>
+        <section class="editor-panel inspector-panel" data-editor-panel="agenda">
+          <div class="panel-heading agenda-panel-heading">
+            <div>
+              <h2>Agenda Items</h2>
+            </div>
+          </div>
           <div class="section-body">
             <div class="agenda-toolbar">
               <div class="action-row">
                 <button class="btn primary" id="addItemBtn" type="button">Add Item</button>
                 <button class="btn" id="addSectionBtn" type="button">Add Section</button>
                 <div class="auto-time-field">
-                  <label for="autoTimeStart">Auto Time Start</label>
+                  <label for="autoTimeStart">Auto time</label>
                   <input class="input" id="autoTimeStart" type="time" data-meeting-field="agendaStartTime" />
                 </div>
               </div>
               <button class="btn ghost" id="clearFormBtn" type="button">Clear Form</button>
             </div>
-            <div class="agenda-form-anchor" id="agendaFormAnchor">
-              <form class="agenda-form" id="agendaForm">
-                <div class="field-grid">
-                  <div class="field">
-                    <label for="itemKind">Type</label>
-                    <select class="select" id="itemKind">
-                      <option value="item">Agenda item</option>
-                      <option value="section">Section heading</option>
-                    </select>
+
+            <div class="selected-editor-card" id="selectedEditorCard" hidden>
+              <div class="selected-editor-title">Editing selected item</div>
+              <div class="agenda-form-anchor" id="agendaFormAnchor">
+                <form class="agenda-form" id="agendaForm">
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="itemKind">Type</label>
+                      <select class="select" id="itemKind">
+                        <option value="item">Agenda item</option>
+                        <option value="section">Section heading</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="itemTime">Start</label>
+                      <input class="input" id="itemTime" type="time" readonly aria-readonly="true" />
+                    </div>
+                    <div class="field full">
+                      <label for="itemTitle">Program</label>
+                      <input class="input" id="itemTitle" autocomplete="off" />
+                    </div>
+                    <div class="field">
+                      <label for="itemDuration">Min</label>
+                      <input class="input" id="itemDuration" autocomplete="off" placeholder="5 or 5-7" />
+                      <p class="field-warning" id="itemDurationWarning" hidden>Duration should be a number or range, such as 3, 1.5, or 5-7.</p>
+                    </div>
+                    <div class="field">
+                      <label for="itemPerson">Owner</label>
+                      <input class="input" id="itemPerson" autocomplete="off" />
+                    </div>
+                    <div class="field full">
+                      <label for="itemDetail">Details</label>
+                      <textarea class="textarea" id="itemDetail"></textarea>
+                    </div>
                   </div>
-                  <div class="field">
-                    <label for="itemTime">Calculated start</label>
-                    <input class="input" id="itemTime" type="time" readonly aria-readonly="true" />
+                  <div class="action-row">
+                    <button class="btn primary" id="saveItemBtn" type="submit">Done</button>
+                    <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
+                    <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
                   </div>
-                  <div class="field full">
-                    <label for="itemTitle">Program</label>
-                    <input class="input" id="itemTitle" autocomplete="off" />
-                  </div>
-                  <div class="field">
-                    <label for="itemDuration">Duration</label>
-                    <input class="input" id="itemDuration" autocomplete="off" placeholder="5 or 5-7" />
-                    <p class="field-warning" id="itemDurationWarning" hidden>Duration should be a number or range, such as 3, 1.5, or 5-7.</p>
-                  </div>
-                  <div class="field">
-                    <label for="itemPerson">Participant</label>
-                    <input class="input" id="itemPerson" autocomplete="off" />
-                  </div>
-                  <div class="field full">
-                    <label for="itemDetail">Details</label>
-                    <textarea class="textarea" id="itemDetail"></textarea>
-                  </div>
-                </div>
-                <div class="action-row">
-                  <button class="btn primary" id="saveItemBtn" type="submit">Done</button>
-                  <button class="btn" id="duplicateItemBtn" type="button">Duplicate</button>
-                  <button class="btn danger" id="deleteItemBtn" type="button">Delete</button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
             <div class="agenda-list" id="agendaList"></div>
           </div>
-        </details>
+        </section>
 
-        <details class="editor-section">
-          <summary>Club Details</summary>
+        <section class="editor-panel inspector-panel" data-editor-panel="club" hidden>
+          <div class="panel-heading">
+            <div>
+              <h2>Club</h2>
+              <p>Club content and rules</p>
+            </div>
+          </div>
           <div class="section-body">
-            <div class="field">
+            <div class="inspector-card field">
+              <div class="card-heading"><h3>About</h3></div>
               <label for="aboutClub">About Intro</label>
               <textarea class="textarea" id="aboutClub" data-field="aboutClub"></textarea>
             </div>
-            <div class="field">
+            <div class="inspector-card field">
+              <div class="card-heading"><h3>Officers</h3></div>
               <label for="officers">Officer Team</label>
               <textarea class="textarea" id="officers" data-field="officers"></textarea>
             </div>
-            <div class="field">
+            <div class="inspector-card field">
+              <div class="card-heading"><h3>Timing Rules</h3></div>
               <label for="timingRules">Timing Rules</label>
               <textarea class="textarea" id="timingRules" data-field="timingRules"></textarea>
             </div>
-            <div class="field">
+            <div class="inspector-card field">
+              <div class="card-heading"><h3>Meeting Rules</h3></div>
               <label>Meeting Rules</label>
               <div class="stacked-fields" id="meetingRuleFields"></div>
             </div>
           </div>
-        </details>
+        </section>
 
-        <details class="editor-section">
-          <summary>Preview Text</summary>
+        <section class="editor-panel inspector-panel" data-editor-panel="output" hidden>
+          <div class="panel-heading">
+            <div>
+              <h2>Output</h2>
+              <p>Advanced labels and footer text</p>
+            </div>
+          </div>
           <div class="section-body">
-            <div class="field-grid" id="previewTextFields"></div>
-            <div class="field">
+            <div class="output-groups" id="previewTextFields"></div>
+            <div class="inspector-card field">
+              <div class="card-heading"><h3>Guest Participation Tags</h3></div>
               <label>Guest Participation Tags</label>
               <div class="stacked-fields" id="guestParticipationFields"></div>
             </div>
           </div>
-        </details>
+        </section>
       </div>
     </section>
 
