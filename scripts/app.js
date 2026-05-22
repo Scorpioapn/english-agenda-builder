@@ -72,6 +72,7 @@
         importFile: $("#importFile"),
         aboutClub: $("#aboutClub"),
         officers: $("#officers"),
+        timingRuleCards: $("#timingRuleCards"),
         previewTextFields: $("#previewTextFields"),
         meetingRuleFields: $("#meetingRuleFields"),
         guestParticipationFields: $("#guestParticipationFields"),
@@ -116,12 +117,19 @@
     function syncFromInputs(event) {
       const target = event.target;
       if (els.agendaForm?.contains(target)) return;
+      if (target.dataset.timingRuleField) {
+        syncTimingRuleDraft(target);
+        return;
+      }
       autoSizeTextarea(target);
       if (target.dataset.meetingField) {
         state[target.dataset.meetingField] = target.value;
       }
       if (target.dataset.field) {
         state[target.dataset.field] = target.value;
+        if (target === els.timingRules) {
+          renderTimingRuleCards();
+        }
       }
       if (target.dataset.listField) {
         const field = target.dataset.listField;
@@ -132,6 +140,28 @@
       }
       if (target === els.autoTimeStart) {
         autoRescheduleAgenda({ save: false, renderPreviewPage: false });
+      }
+      scheduleSaveAndPreview();
+    }
+
+    function syncTimingRuleDraft(target) {
+      const index = Number.parseInt(target.dataset.timingRuleIndex, 10);
+      const field = target.dataset.timingRuleField;
+      const rules = parseTimingRules(state.timingRules);
+      if (!rules[index] || !field) return;
+      rules[index][field] = target.value;
+      state.timingRules = serializeTimingRules(rules);
+      if (els.timingRules) {
+        els.timingRules.value = state.timingRules;
+        autoSizeTextarea(els.timingRules);
+      }
+      const card = target.closest(".timing-rule-card");
+      if (card) {
+        const heading = card.querySelector(".timing-rule-card-head strong");
+        if (heading && field === "title") {
+          heading.textContent = target.value || "Untitled timing rule";
+        }
+        updateTimingRuleValidation(card);
       }
       scheduleSaveAndPreview();
     }

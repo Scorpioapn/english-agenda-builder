@@ -147,9 +147,18 @@
               <textarea class="textarea" id="officers" data-field="officers"></textarea>
             </div>
             <div class="inspector-card field">
-              <div class="card-heading"><h3>Timing Rules</h3></div>
-              <label for="timingRules">Timing Rules</label>
-              <textarea class="textarea" id="timingRules" data-field="timingRules"></textarea>
+              <div class="card-heading">
+                <div>
+                  <h3>Timing Rules</h3>
+                  <p class="editor-hint">Edit each timing signal separately. The agenda preview will update automatically.</p>
+                </div>
+              </div>
+              <div class="timing-rule-cards" id="timingRuleCards"></div>
+              <details class="raw-editor-details">
+                <summary>Advanced: Raw Timing Rules</summary>
+                <label for="timingRules">Pipe-separated timing rules</label>
+                <textarea class="textarea" id="timingRules" data-field="timingRules"></textarea>
+              </details>
             </div>
             <div class="inspector-card field">
               <div class="card-heading"><h3>Meeting Rules</h3></div>

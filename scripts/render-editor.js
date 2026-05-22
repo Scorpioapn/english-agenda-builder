@@ -12,6 +12,60 @@
       votingQrSrc: "Voting"
     };
 
+    const timingRuleFields = [
+      { key: "title", label: "Rule Name", required: true },
+      { key: "speechLength", label: "Applies to" },
+      { key: "green", label: "Green Card", required: true, signal: "green" },
+      { key: "yellow", label: "Yellow Card", required: true, signal: "yellow" },
+      { key: "red", label: "Red Card", required: true, signal: "red" },
+      { key: "bell", label: "Bell", required: true, signal: "bell" }
+    ];
+
+    function parseTimingRules(value) {
+      return splitLines(value).map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        const rule = {
+          title: parts.shift() || "",
+          speechLength: "",
+          green: "",
+          yellow: "",
+          red: "",
+          bell: "",
+          extra: []
+        };
+
+        for (const part of parts) {
+          const match = part.match(/^([^:]+):\s*(.*)$/);
+          if (!match) {
+            rule.extra.push(part);
+            continue;
+          }
+          const label = match[1].trim().toLowerCase();
+          const text = match[2].trim();
+          if (label === "speech length" || label === "speech") rule.speechLength = text;
+          else if (label === "green card" || label === "green") rule.green = text;
+          else if (label === "yellow card" || label === "yellow") rule.yellow = text;
+          else if (label === "red card" || label === "red") rule.red = text;
+          else if (label === "bell") rule.bell = text;
+          else rule.extra.push(part);
+        }
+
+        return rule;
+      });
+    }
+
+    function serializeTimingRules(rules) {
+      return rules.map((rule) => [
+        rule.title || "",
+        `Speech length: ${rule.speechLength || ""}`,
+        `Green Card: ${rule.green || ""}`,
+        `Yellow Card: ${rule.yellow || ""}`,
+        `Red Card: ${rule.red || ""}`,
+        `Bell: ${rule.bell || ""}`,
+        ...(rule.extra || [])
+      ].join(" | ")).join("\n");
+    }
+
     function fieldControlHtml([key, label, type], options = {}) {
         const value = escapeHtml(state[key] || "");
         const fieldClass = `field${type === "textarea" || type === "image" || options.readable?.has(key) ? " field-readable" : ""}`;
@@ -88,6 +142,68 @@
       `).join("");
     }
 
+    function timingRuleFieldHtml(rule, index, field) {
+      const value = escapeHtml(rule[field.key] || "");
+      const inputId = `timing-rule-${index}-${field.key}`;
+      const warning = field.required ? `${field.label} is empty.` : "";
+      const signal = field.signal
+        ? `<span class="timing-editor-dot ${field.signal}" aria-hidden="true"></span>`
+        : "";
+      return `
+        <div class="field timing-rule-field ${field.key === "speechLength" ? "full" : ""}">
+          <label for="${inputId}">${signal}${escapeHtml(field.label)}</label>
+          <input
+            class="input"
+            id="${inputId}"
+            data-timing-rule-index="${index}"
+            data-timing-rule-field="${field.key}"
+            value="${value}"
+            autocomplete="off"
+          />
+          ${field.required ? `<p class="timing-field-warning" data-timing-warning="${field.key}" hidden>${escapeHtml(warning)}</p>` : ""}
+        </div>
+      `;
+    }
+
+    function timingRuleCardHtml(rule, index) {
+      return `
+        <article class="timing-rule-card" data-timing-rule-card="${index}">
+          <div class="timing-rule-card-head">
+            <span class="timing-rule-index">${index + 1}</span>
+            <strong>${escapeHtml(rule.title || "Untitled timing rule")}</strong>
+          </div>
+          <div class="timing-rule-grid">
+            ${timingRuleFields.map((field) => timingRuleFieldHtml(rule, index, field)).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderTimingRuleCards() {
+      if (!els.timingRuleCards) return;
+      const rules = parseTimingRules(state.timingRules);
+      els.timingRuleCards.innerHTML = rules.length
+        ? rules.map(timingRuleCardHtml).join("")
+        : `<p class="editor-empty-note">No timing rules found. Use Advanced raw text to restore timing rules.</p>`;
+      updateTimingRuleValidation();
+    }
+
+    function updateTimingRuleValidation(scope = document) {
+      const cards = scope.matches?.(".timing-rule-card")
+        ? [scope]
+        : [...(scope.querySelectorAll ? scope.querySelectorAll(".timing-rule-card") : [])];
+      for (const card of cards) {
+        for (const field of timingRuleFields.filter((item) => item.required)) {
+          const input = card.querySelector(`[data-timing-rule-field="${field.key}"]`);
+          const warning = card.querySelector(`[data-timing-warning="${field.key}"]`);
+          const isEmpty = !String(input?.value || "").trim();
+          input?.classList.toggle("is-invalid", isEmpty);
+          input?.setAttribute("aria-invalid", String(isEmpty));
+          if (warning) warning.hidden = !isEmpty;
+        }
+      }
+    }
+
     function renderInputs() {
       const basicFieldDefs = meetingFieldDefs.filter((definition) => definition[2] !== "image");
       const qrFieldDefs = meetingFieldDefs.filter((definition) => definition[2] === "image");
@@ -109,6 +225,7 @@
       for (const field of [els.aboutClub, els.officers, els.timingRules]) {
         field.value = state[field.dataset.field] || "";
       }
+      renderTimingRuleCards();
     }
 
     function autoSizeTextarea(textarea) {
@@ -253,4 +370,4 @@
         }
       }
     }
-window.AgendaBuilder.editor = { renderInputs, renderAgendaList, placeAgendaForm, updateActiveAgendaCard, updateAgendaCardTimes, updateDurationWarning, autoSizeTextareas };
+window.AgendaBuilder.editor = { renderInputs, renderAgendaList, placeAgendaForm, updateActiveAgendaCard, updateAgendaCardTimes, updateDurationWarning, autoSizeTextareas, parseTimingRules, serializeTimingRules, renderTimingRuleCards, updateTimingRuleValidation };
