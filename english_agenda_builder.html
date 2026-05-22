@@ -424,6 +424,12 @@
       min-height: 42px;
     }
 
+    .input[readonly] {
+      background: color-mix(in srgb, var(--md-surface-variant) 64%, white);
+      color: #4f5c5b;
+      cursor: default;
+    }
+
     .textarea {
       resize: none;
       min-height: 94px;
@@ -2485,7 +2491,6 @@
                   <label for="autoTimeStart">Auto Time Start</label>
                   <input class="input" id="autoTimeStart" type="time" data-meeting-field="agendaStartTime" />
                 </div>
-                <button class="btn" id="rescheduleBtn" type="button">Auto Time</button>
               </div>
               <button class="btn ghost" id="clearFormBtn" type="button">Clear Form</button>
             </div>
@@ -2500,8 +2505,8 @@
                     </select>
                   </div>
                   <div class="field">
-                    <label for="itemTime">Start time</label>
-                    <input class="input" id="itemTime" type="time" />
+                    <label for="itemTime">Calculated start</label>
+                    <input class="input" id="itemTime" type="time" readonly aria-readonly="true" />
                   </div>
                   <div class="field full">
                     <label for="itemTitle">Program</label>
@@ -2967,7 +2972,6 @@
         deleteItemBtn: $("#deleteItemBtn"),
         autoTimeStart: $("#autoTimeStart"),
         clearFormBtn: $("#clearFormBtn"),
-        rescheduleBtn: $("#rescheduleBtn"),
         printBtn: $("#printBtn"),
         copyBtn: $("#copyBtn"),
         exportBtn: $("#exportBtn"),
@@ -3562,6 +3566,46 @@
       return `<ul class="compact-list">${rows}</ul>`;
     }
 
+    function syncEditingCalculatedTime() {
+      if (!editingId || !els.itemTime) return;
+      const item = state.items.find((entry) => entry.id === editingId);
+      els.itemTime.value = item && item.kind !== "section" ? item.time || "" : "";
+    }
+
+    function updateAgendaCardTimes() {
+      if (!els.agendaList) return;
+      for (const card of els.agendaList.querySelectorAll(".agenda-card")) {
+        const item = state.items.find((entry) => entry.id === card.dataset.id);
+        const timeEl = card.querySelector(".agenda-time");
+        if (item && timeEl) {
+          timeEl.textContent = item.kind === "section" ? "" : item.time || "--:--";
+        }
+      }
+    }
+
+    function autoRescheduleAgenda(options = {}) {
+      const {
+        save = true,
+        updateCards = true,
+        renderPreviewPage = true
+      } = options;
+      let cursor = timeToMinutes(state.agendaStartTime || "19:00");
+      let changed = false;
+      state.items = state.items.map((item) => {
+        if (item.kind === "section") return item;
+        const time = minutesToTime(cursor);
+        cursor += minutesFromDuration(item.duration);
+        if (item.time === time) return item;
+        changed = true;
+        return { ...item, time };
+      });
+      syncEditingCalculatedTime();
+      if (save && changed) saveData();
+      if (updateCards) updateAgendaCardTimes();
+      if (renderPreviewPage) renderPreview();
+      return changed;
+    }
+
     function renderAll() {
       renderInputs();
       renderAgendaList();
@@ -3585,6 +3629,9 @@
         state[field] = [...document.querySelectorAll(`[data-list-field="${CSS.escape(field)}"]`)]
           .map((input) => input.value.trim())
           .join(separator);
+      }
+      if (target === els.autoTimeStart) {
+        autoRescheduleAgenda({ save: false, renderPreviewPage: false });
       }
       saveData();
       renderPreview();
@@ -3645,19 +3692,28 @@
       } else {
         state.items.push(item);
       }
+      autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
       saveData();
       clearForm();
       renderPreview();
       showToast("Agenda item saved");
     }
 
-    function syncAgendaDraftFromForm() {
+    function syncAgendaDraftFromForm(eventOrOptions = {}) {
       if (!editingId) return;
       const index = state.items.findIndex((entry) => entry.id === editingId);
       if (index < 0) return;
       state.items[index] = readForm();
+      const target = eventOrOptions.target;
+      const shouldReschedule = Boolean(eventOrOptions.forceReschedule)
+        || target === els.itemDuration
+        || target === els.itemKind;
+      if (shouldReschedule) {
+        autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
+      }
       saveData();
       updateActiveAgendaCard();
+      if (shouldReschedule) updateAgendaCardTimes();
       renderPreview();
     }
 
@@ -3672,6 +3728,7 @@
       if (!confirmed) return;
       state.items = state.items.filter((entry) => entry.id !== editingId);
       clearForm();
+      autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
       saveData();
       renderAll();
       showToast("Item deleted");
@@ -3687,6 +3744,7 @@
       const cloneItem = { ...clone(source), id: newId(), title: `${source.title} Copy` };
       const index = state.items.findIndex((entry) => entry.id === editingId);
       state.items.splice(index + 1, 0, cloneItem);
+      autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
       saveData();
       openForm(cloneItem.id);
       renderPreview();
@@ -3711,6 +3769,7 @@
       }
       if (insertAfter) targetIndex += 1;
       state.items.splice(targetIndex, 0, draggedItem);
+      autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
       saveData();
       renderAgendaList();
       renderPreview();
@@ -3758,19 +3817,6 @@
       els.agendaList.querySelectorAll(".dragging").forEach((card) => card.classList.remove("dragging"));
       clearDropMarkers();
       draggedId = null;
-    }
-
-    function rescheduleAgenda() {
-      let cursor = timeToMinutes(state.agendaStartTime || "19:00");
-      state.items = state.items.map((item) => {
-        if (item.kind === "section") return item;
-        const next = { ...item, time: minutesToTime(cursor) };
-        cursor += minutesFromDuration(item.duration);
-        return next;
-      });
-      saveData();
-      renderAll();
-      showToast("Agenda times recalculated");
     }
 
     function syncFormVisibility() {
@@ -3831,6 +3877,7 @@
         state = normalizeData(JSON.parse(text));
         editingId = null;
         isFormOpen = false;
+        autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
         saveData();
         renderAll();
         showToast("JSON imported");
@@ -3881,6 +3928,7 @@
       state = clone(DEFAULT_DATA);
       editingId = null;
       isFormOpen = false;
+      autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
       saveData();
       renderAll();
       showToast("Defaults restored");
@@ -3899,14 +3947,13 @@
       els.agendaForm.addEventListener("input", syncAgendaDraftFromForm);
       els.itemKind.addEventListener("change", () => {
         syncFormVisibility();
-        syncAgendaDraftFromForm();
+        syncAgendaDraftFromForm({ forceReschedule: true });
       });
       els.addItemBtn.addEventListener("click", () => clearForm("item", { open: true }));
       els.addSectionBtn.addEventListener("click", () => clearForm("section", { open: true }));
       els.clearFormBtn.addEventListener("click", () => clearForm());
       els.deleteItemBtn.addEventListener("click", deleteCurrentItem);
       els.duplicateItemBtn.addEventListener("click", duplicateCurrentItem);
-      els.rescheduleBtn.addEventListener("click", rescheduleAgenda);
       els.printBtn.addEventListener("click", () => window.print());
       els.copyBtn.addEventListener("click", copyText);
       els.exportBtn.addEventListener("click", exportJson);
@@ -3932,6 +3979,7 @@
     }
 
     setupElements();
+    autoRescheduleAgenda({ save: false, updateCards: false, renderPreviewPage: false });
     renderAll();
     bindEvents();
   </script>
